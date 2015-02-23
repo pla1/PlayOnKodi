@@ -19,6 +19,7 @@ window.onload = function () {
         }
 
     }, false);
+
     function youTubeSearch() {
         var searchText = document.getElementById('searchField').value;
         console.log('Looking up: ' + searchText);
@@ -54,7 +55,6 @@ window.onload = function () {
     }
     function kodiPlay() {
         console.log("kodiPlay");
-        console.log("Mute");
         var date = new Date();
         var urlString = "http://192.168.1.30:8080/jsonrpc";
         console.log(date + ' ' + urlString);
@@ -103,8 +103,41 @@ window.onload = function () {
                    success: function(data) {},
                    async: false
                });
+        if (kodiIsPlaying()) {
+            console.log("Kodi is playing");
+        } else {
+            console.log("Kodi is NOT playing.");
+            kodiPlay();
+        }
+
         return;
 
+    }
+    function kodiIsPlaying() {
+        console.log("kodiIsPlaying");
+        var date = new Date();
+        var urlString = "http://192.168.1.30:8080/jsonrpc";
+        console.log(date + ' ' + urlString);
+        data ={
+            jsonrpc:"2.0",
+            method: "Player.GetActivePlayers",
+            id: 1
+        };
+        console.log("JSON request: " + JSON.stringify(data));
+        var playerQuantity =0;
+        $.ajax({
+                   type: 'POST',
+                   url: urlString,
+                   data: JSON.stringify(data),
+                   contentType: 'application/json',
+                   success: function(data) {
+                       console.log(JSON.stringify(data));
+                       playerQuantity = data.result.length;
+                       console.log(playerQuantity + " players");
+                   },
+                   async: false
+               });
+        return playerQuantity > 0;
     }
 
     function mute() {
