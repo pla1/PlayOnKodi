@@ -1,0 +1,61 @@
+#hello-page {
+padding: 1rem;
+}
+
+.title, .introduction, .button {
+margin-bottom: 1rem;
+}
+
+.is-hidden {
+display: none;
+}
+
+.img-cordova {
+display: block;
+margin: 0 auto;
+}
+
+.cordova-indicator {
+text-align: center;
+}
+
+@keyframes fade {
+from { opacity: 1.0; }
+50% { opacity: 0.4; }
+to { opacity: 1.0; }
+}
+
+@-webkit-keyframes fade {
+from { opacity: 1.0; }
+50% { opacity: 0.4; }
+to { opacity: 1.0; }
+}
+
+.blink {
+animation:fade 3000ms infinite;
+-webkit-animation:fade 3000ms infinite;
+}
+.listContainer {
+border: 1px solid #333;
+overflow: auto
+}
+.imageContainer img {
+float: left;
+display:block;
+vertical-align:middle;
+}
+
+.textContainer {
+margin-left: 130px;
+}
+.textContainer h3 {
+font-size:larger;
+font-weight:bold;
+}
+.searchFieldContainer {
+width:90%;
+text-align:center;
+}
+#searchField {
+width:90%;
+}
