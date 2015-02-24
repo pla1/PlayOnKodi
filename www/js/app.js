@@ -47,7 +47,7 @@ window.onload = function () {
             var thumbnailUrl = item.snippet.thumbnails.default.url;
             html += "<div class='listContainer'><div class='imageContainer'><img src='" + thumbnailUrl + "'></div><div class='textContainer'><h3>" + title +  "</h3><p>" + description + "</p></div></div>\n";
             console.log("Video ID: " + videoId);
-            kodiAddToPlaylist(videoId);
+         //   kodiAddToPlaylist(videoId);
         }
         html+="</ul>";
         var resultList = document.getElementById('resultList');
@@ -166,33 +166,7 @@ window.onload = function () {
         return;
     }
 
-    if(typeof Storage !== "undefined") {
-        console.log("Yes local storage is supported." + restore("maxResults",0));
-    } else {
-        console.log("NO NO NO. WTF NO STORAGE CAPABILITIES.");
-    }
-    $(document).ready(function() {
-        $('#searchField').keydown(function(event) {
-            if (event.keyCode == 13) {
-                youTubeSearch();
-                return false;
-            }
-        });
-    });
+
+
 };
 
-function save(name, value) {
-    console.log("Saving " + name + " value is: "+ value);
-    localStorage.setItem(name,value);
-    return false;
-}
-function restore(name,defaultValue) {
-    console.log("Restoring variable " + name + " default value: " + defaultValue);
-    var value =  localStorage.getItem(name);
-    if (value == 'undefined') {
-        console.log("Value not found. Returning default value " + defaultValue);
-        value = defaultValue;
-        save(name,value);
-    }
-    return value;
-}
