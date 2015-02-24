@@ -17,13 +17,15 @@ window.onload = function () {
         if (console && console.log) {
             console.log('Platform layer API ready');
         }
-
+        toolbar = UI.toolbar("footer1");
     }, false);
 
     function youTubeSearch() {
         var searchText = document.getElementById('searchField').value;
-        console.log('Looking up: ' + searchText);
-        var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y&q=" + searchText;
+        var maxResults=restore('maxResults',5);
+        console.log('Looking up: ' + searchText + " max results:" + maxResults);
+        var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y&q=" + searchText+"&maxResults="+maxResults;
+        console.log("URL: " + url);
         $.ajax({
                    type: 'GET',
                    url: url,
@@ -164,6 +166,11 @@ window.onload = function () {
         return;
     }
 
+    if(typeof Storage !== "undefined") {
+        console.log("Yes local storage is supported." + restore("maxResults",0));
+    } else {
+        console.log("NO NO NO. WTF NO STORAGE CAPABILITIES.");
+    }
     $(document).ready(function() {
         $('#searchField').keydown(function(event) {
             if (event.keyCode == 13) {
@@ -174,4 +181,18 @@ window.onload = function () {
     });
 };
 
-
+function save(name, value) {
+    console.log("Saving " + name + " value is: "+ value);
+    localStorage.setItem(name,value);
+    return false;
+}
+function restore(name,defaultValue) {
+    console.log("Restoring variable " + name + " default value: " + defaultValue);
+    var value =  localStorage.getItem(name);
+    if (value == 'undefined') {
+        console.log("Value not found. Returning default value " + defaultValue);
+        value = defaultValue;
+        save(name,value);
+    }
+    return value;
+}
