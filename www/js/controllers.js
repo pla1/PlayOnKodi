@@ -39,45 +39,45 @@ pokApp.directive("loadingIndicator", function() {
 });
 
 pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) {
-  function storageSet(name, value) {
-    console.log("Saving " + name + " value is: "+ value);
-    localStorage.setItem(name,value);
-    return false;
-  }
-  function storageGet(name,defaultValue) {
-    var value =  localStorage.getItem(name);
-    if (value == 'undefined' || value == 'null') {
-      console.log("Value not found. Returning default value " + defaultValue);
-      value = defaultValue;
-      storageSet(name,value);
-    }
-    console.log("storageGet variable: " + name + " default value: " + defaultValue + " value: " + value);
-    return value;
-  }
   $scope.maxResults = storageGet("maxResults",5);
   $scope.ytOrder = storageGet("ytOrder","date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
+  $scope.devices = JSON.parse(localStorage.getItem("devices"));
+  console.log("Devices: " + $scope.devices);
+  if (typeof $scope.devices == "undefined") {
+    console.log("Devices is blank.");
+    $scope.devices=[];
+    localStorage.setItem("devices",JSON.stringify($scope.devices));
+  }
+
   $scope.searchYouTube = function() {
     var searchText = $scope.searchField;
-    console.log('Looking up: ' + searchText + " max results:" + maxResults);
-    var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y&q="+searchText+"&maxResults="+$scope.maxResults+"&safeSearch"+$scope.ytSafeSearch+"&order="+$scope.ytOrder;
+    console.log('Looking up: ' + searchText + " max results:" + $scope.maxResults);
+    var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y&q="+searchText+"&maxResults="+$scope.maxResults+"&safeSearch="+$scope.ytSafeSearch+"&order="+$scope.ytOrder;
     console.log("URL: " + url);
     $http.get(url).success(function(data) {
       $scope.items = data.items;
+      for (var i = 0;i<$scope.items.length;i++) {
+          $scope.items[i].age=moment($scope.items[i].snippet.publishedAt).fromNow();
+      }
     });
   }
-  $scope.saveYtOrder = function() {
-      console.log("saveYtOrder " + $scope.ytOrder);
-      storageSet("ytOrder",$scope.ytOrder);
-  }
-  $scope.saveMaxResults = function() {
-    console.log("saveMaxResults " + $scope.maxResults);
+  $scope.saveYtSettings = function() {
+    console.log("saveYtSettings");
+    storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
-  }
-  $scope.saveYtSafeSearch = function() {
-    console.log("saveYtSafeSearch " + $scope.ytSafeSearch);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
   }
-
+  $scope.saveDevice = function() {
+    var device = {};
+    device.name=$scope.deviceName;
+    device.port=$scope.devicePort;
+    device.userName=$scope.deviceUserName;
+    device.password=$scope.devicePassword;
+    device.description=$scope.deviceDescription;
+    console.log("Devices before saving: " + $scope.devices);
+    $scope.devices.push(device);
+    localStorage.setItem("devices",JSON.stringify($scope.devices));
+  }
 
 } ]);

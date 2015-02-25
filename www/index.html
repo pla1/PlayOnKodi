@@ -17,6 +17,7 @@
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tab.js"></script>
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
 <script src="js/jquery-1.11.2.js"></script>
+<script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
 <script src="js/controllers.js"></script>
 </head>
@@ -27,6 +28,7 @@
     <header data-role="header">
       <ul data-role="tabs">
         <li data-role="tabitem" data-page="main-page">Play on Kodi</li>
+        <li data-role="tabitem" data-page="KodiSettings">Kodi Settings</li>
         <li data-role="tabitem" data-page="YouTubeSettings">YouTube Settings</li>
       </ul>
     </header>
@@ -45,7 +47,7 @@
             <img ng-src="{{item.snippet.thumbnails.default.url}}">
           </div>
           <div class="textContainer">
-            <h3>{{item.snippet.title}}</h3>
+            <h3>{{item.snippet.title}} - <span style='font-size:smaller'>{{item.age}}</span></h3>
           </div>
           <div class="textContainer">{{item.snippet.description}}</div>
         </div>
@@ -53,26 +55,55 @@
       </div>
 
 
+      <div data-role="tab" id="KodiSettings">
+        <table id="deviceForm">
+          <tr><th>Host name</th><td><input type="text" ng-model="deviceName" placeholder="Host name or IP address"></td></tr>
+          <tr><th>Port</th><td><input type="number" ng-model="devicePort" placeholder="Port"></td></tr>
+          <tr><th>User name</th><td><input type="text" ng-model="deviceUserName" placeholder="Optional user name"></td></tr>
+          <tr><th>Password</th><td><input type="password" ng-model="devicePassword" placeholder="Optional password"></td></tr>
+          <tr><th>Description</th><td><input type="text" ng-model="deviceDescription" placeholder="Description"></td></tr>
+        </table>
+        <button ng-click="saveDevice()">Add device</button>
+        <p>{{devices.length}} devices</p>
+        <table ng-show="devices">
+          <tr>
+            <th>Active</th>
+            <th>Host<br>name</th>
+            <th>Description</th>
+          </tr>
+          <tr ng-repeat="device in devices track by $index">
+            <td><input type="checkbox"></td>
+            <td>{{device.name}}</td>
+            <td>{{device.description}}</td>
+          </tr>
+
+        </table>
+
+      </div>
+
+
+
       <div data-role="tab" id="YouTubeSettings">
-      <div>Max results {{maxResults}} <input ng-model="maxResults" ng-change="saveMaxResults()" type="range" min="1" max="50" ></div>
-      <div>Order
-        <select ng-model="ytOrder" ng-change="saveYtOrder()">
-          <option ng-value="date">Date</option>
-          <option ng-value="rating">Rating</option>
-          <option ng-value="relevance">Relevance</option>
-          <option ng-value="title">Title</option>
-          <option ng-value="videoCount">Video count</option>
-          <option ng-value="viewCount">View count</option>
-        </select>
+        <div>Max results {{maxResults}} <input ng-model="maxResults" ng-change="saveYtSettings()" type="range" min="1" max="50" ></div>
+        <div>Order
+          <select ng-model="ytOrder" ng-change="saveYtSettings()">
+            <option value="date">Date</option>
+            <option value="rating">Rating</option>
+            <option value="relevance">Relevance</option>
+            <option value="title">Title</option>
+            <option value="videoCount">Video count</option>
+            <option value="viewCount">View count</option>
+          </select>
+        </div>
+        <div>Safe search
+          <select ng-model="ytSafeSearch" ng-change="saveYtSettings()">
+            <option value="moderate">Moderate</option>
+            <option value="none">None</option>
+            <option value="strict">Strict</option>
+          </select>
+        </div>
       </div>
-      <div>Safe search
-        <select ng-model="ytSafeSearch" ng-change="saveYtSafeSearch()">
-          <option ng-value="moderate">Moderate</option>
-          <option ng-value="none">None</option>
-          <option ng-value="strict">Strict</option>
-        </select>
-      </div>
-      </div>
+
     </div>
 
   </div>

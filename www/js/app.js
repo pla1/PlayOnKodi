@@ -20,41 +20,6 @@ window.onload = function () {
         toolbar = UI.toolbar("footer1");
     }, false);
 
-    function youTubeSearch() {
-        var searchText = document.getElementById('searchField').value;
-        var maxResults=restore('maxResults',5);
-        console.log('Looking up: ' + searchText + " max results:" + maxResults);
-        var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y&q=" + searchText+"&maxResults="+maxResults;
-        console.log("URL: " + url);
-        $.ajax({
-                   type: 'GET',
-                   url: url,
-                   success: youTubeSearchSuccess,
-                   dataType:'jsonp',
-                   contentType: "application/json"
-               });
-    }
-
-    function youTubeSearchSuccess( data ){
-        console.log("Sucess: " + JSON.stringify(data));
-        console.log("Length of items: " + data.items.length);
-        var html ="<ul data-role='listview'>";
-        for (var i =0;i < data.items.length;i++) {
-            var item = data.items[i];
-            var videoId = item.id.videoId;
-            var title = item.snippet.title;
-            var description = item.snippet.description;
-            var thumbnailUrl = item.snippet.thumbnails.default.url;
-            html += "<div class='listContainer'><div class='imageContainer'><img src='" + thumbnailUrl + "'></div><div class='textContainer'><h3>" + title +  "</h3><p>" + description + "</p></div></div>\n";
-            console.log("Video ID: " + videoId);
-         //   kodiAddToPlaylist(videoId);
-        }
-        html+="</ul>";
-        var resultList = document.getElementById('resultList');
-        resultList.innerHTML =html;
-        console.log(html);
-        //   kodiPlay();
-    }
     function kodiPlay() {
         console.log("kodiPlay");
         var date = new Date();
@@ -170,3 +135,21 @@ window.onload = function () {
 
 };
 
+function isBlank(str) {
+    return (!str || /^\s*$/.test(str));
+}
+function storageSet(name, value) {
+  console.log("Saving " + name + " value is: "+ value);
+  localStorage.setItem(name,value);
+  return false;
+}
+function storageGet(name,defaultValue) {
+  var value =  localStorage.getItem(name);
+  if (isBlank(value)) {
+    console.log("Value not found. Returning default value " + defaultValue);
+    value = defaultValue;
+    storageSet(name,value);
+  }
+  console.log("storageGet variable: " + name + " default value: " + defaultValue + " value: " + value);
+  return value;
+}
