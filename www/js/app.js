@@ -48,7 +48,7 @@ window.onload = function () {
     function kodiAddToPlaylist(videoId) {
         console.log("kodiAddToPlaylist");
         var date = new Date();
-        var urlString = "http://192.168.1.30:8080/jsonrpc";
+        var urlString = "http://10.6.1.6:8080/jsonrpc";
         console.log(date + ' ' + urlString);
         data ={
             jsonrpc:"2.0",

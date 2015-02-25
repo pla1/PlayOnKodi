@@ -39,10 +39,10 @@
       <div data-role="tab" id="main-page">
         <div class="searchFieldContainer">
           <input ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube">
-          <span ng-show="items">{{items.length}} results</span>
+          <span ng-show="items">{{filteredItems.length}} results</span>
         </div>
 
-        <div class="listContainer" ng-repeat="item in items">
+        <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="playOnKodi(item)">
           <div class="imageContainer">
             <img ng-src="{{item.snippet.thumbnails.default.url}}">
           </div>
