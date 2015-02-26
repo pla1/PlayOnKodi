@@ -42,7 +42,7 @@
           <span ng-show="items">{{filteredItems.length}} results</span>
         </div>
 
-        <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="playOnKodi(item)">
+        <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
           <div class="imageContainer">
             <img ng-src="{{item.snippet.thumbnails.default.url}}">
           </div>
@@ -63,7 +63,7 @@
           <tr><th>Password</th><td><input type="password" ng-model="devicePassword" placeholder="Optional password"></td></tr>
           <tr><th>Description</th><td><input type="text" ng-model="deviceDescription" placeholder="Description"></td></tr>
         </table>
-        <button ng-click="saveDevice()">Add device</button>
+        <button ng-click="saveNewDevice()">Add device</button>
         <p>{{devices.length}} devices</p>
         <table ng-show="devices">
           <tr>
@@ -72,7 +72,7 @@
             <th>Description</th>
           </tr>
           <tr ng-repeat="device in devices track by $index">
-            <td><input type="checkbox"></td>
+            <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active"></td>
             <td>{{device.name}}</td>
             <td>{{device.description}}</td>
           </tr>

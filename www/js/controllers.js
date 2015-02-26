@@ -41,6 +41,7 @@ pokApp.directive("loadingIndicator", function() {
 });
 
 pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) {
+ // localStorage.removeItem("devices");
   $scope.maxResults = storageGet("maxResults",5);
   $scope.ytOrder = storageGet("ytOrder","date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
@@ -77,9 +78,16 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       }
     });
   }
-  $scope.playOnKodi = function(item) {
+  $scope.getUrl = function() {
+    var device = $scope.getActiveDevice();
+    var url = "http://"+device.name+":"+device.port+"/jsonrpc";
+    console.log("Get URL: " + url);
+    return url;
+  }
+
+  $scope.kodiAddToPlaylist = function(item) {
     console.log("playOnKodi" + JSON.stringify(item));
-    var url = "http://10.6.1.6:8080/jsonrpc";
+    var url = $scope.getUrl();
     var data = {
           jsonrpc : "2.0",
           method : "Playlist.Add",
@@ -94,29 +102,28 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     $http.post(url, data).success(function(data) {
       console.log(data);
       item.kodiStatus="addedToQueue";
-      if ($scope.kodiIsPlaying() == 0) {
-          $scope.kodiPlay();
-      }
+      $scope.kodiPlayIfIdle();
     });
 
   }
 
-  $scope.kodiIsPlaying = function() {
-    var url = "http://10.6.1.6:8080/jsonrpc";
-    var playerQuantity = 0;
+  $scope.kodiPlayIfIdle = function() {
+    var url = $scope.getUrl();
     var data = {
       jsonrpc:"2.0",
       method: "Player.GetActivePlayers",
       id: 1
     };
     $http.post(url, data).success(function(data) {
-      console.log(data);
-      playerQuantity = data.result.length;
+      console.log("Play if idle " + JSON.stringify(data));
+      if (data.result.length == 0) {
+          $scope.kodiPlay();
+      }
     });
-    return playerQuantity;
   }
   $scope.kodiPlay = function() {
-    var url = "http://10.6.1.6:8080/jsonrpc";
+    console.log("Kodi play");
+    var url = $scope.getUrl();
     var data ={
       jsonrpc:"2.0",
       method: "Player.Open",
@@ -132,22 +139,99 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     });
   }
 
+  $scope.kodiMute = function() {
+    console.log("Kodi mute");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Application.SetMute",
+      id: 1,
+      params: {
+        item: {
+          mute:"toggle"
+        }
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(data);
+    });
+  }
+
   $scope.saveYtSettings = function() {
     console.log("saveYtSettings");
     storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
   }
-  $scope.saveDevice = function() {
+  $scope.deselectOtherDevices = function(device) {
+    console.log("Deselecting " + $scope.devices.length + " devices.");
+    for (i =0;i<$scope.devices.length;i++) {
+      if (device.id!=$scope.devices[i].id) {
+        $scope.devices[i].active=false;
+      }
+    }
+  }
+  $scope.getActiveDevice = function() {
+    for (i =0;i<$scope.devices.length;i++) {
+      if ($scope.devices[i].active) {
+        console.log("getActiveDevice: " + JSON.stringify($scope.devices[i]));
+        return $scope.devices[i];
+      }
+    }
+    if ($scope.devices.length > 0) {
+      console.log("getActiveDevice return the first one since none were active: " + JSON.stringify($scope.devices[0]));
+      return $scope.devices[0];
+    }
+    return null;
+  }
+  $scope.deviceToggle = function(device) {
+    console.log(JSON.stringify(device) + " active: " + device.active);
+    if (device.active) {
+      $scope.deselectOtherDevices(device);
+    }
+    $scope.saveDevice(device);
+  }
+  $scope.saveDevice = function(device) {
+    console.log("Saving device: " + JSON.stringify(device) + " device quantity: " + $scope.devices.length);
+    for (i = 0; i < $scope.devices.length; i++) {
+      console.log("Device number: " + i + " " + JSON.stringify($scope.devices[i]));
+      if ($scope.devices[i].id==device.id) {
+        $scope.devices[i] = device;
+        localStorage.setItem("devices",JSON.stringify($scope.devices));
+        console.log("Device match. Saving device to local storage: " + JSON.stringify(device));
+        return;
+      }
+    }
+    console.log("Device not matched. Saving device to local storage: " + JSON.stringify(device));
+    $scope.devices.push(device);
+    localStorage.setItem("devices",JSON.stringify($scope.devices));
+  }
+
+  $scope.saveNewDevice = function() {
     var device = {};
+    device.id=generateUUID();
+    device.active=true;
     device.name=$scope.deviceName;
     device.port=$scope.devicePort;
     device.userName=$scope.deviceUserName;
     device.password=$scope.devicePassword;
     device.description=$scope.deviceDescription;
+    $scope.deselectOtherDevices(device);
     console.log("Devices before saving: " + $scope.devices);
     $scope.devices.push(device);
     localStorage.setItem("devices",JSON.stringify($scope.devices));
+    console.log("Devices after saving: " + $scope.devices);
   }
 
 } ]);
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+};
+
