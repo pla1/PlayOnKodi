@@ -1,9 +1,16 @@
 body, h1, h2, h3, p, li, span {
 font-family: Ubuntu;
 color:white;
-background:black;
+background: #2C001E;
+}
+th, td {
+padding:10px;
+text-align:left;
 }
 .searchField {
+
+}
+input, button, option {
 font-size:x-large;
 }
 .header {
@@ -14,9 +21,12 @@ font-size:xx-large;
 }
 .settings {
  float:right;
+ padding-top:10px;
+ padding-bottom:10px;
+ padding-left:10px;
 }
 .listContainer {
-border: 1px solid silver;
+border: 1px solid #DD4814;
 overflow: auto;
 margin-top:5px;
 }

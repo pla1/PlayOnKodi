@@ -5,91 +5,104 @@
 <title>Play on Kodi</title>
 <meta name="description" content="Play on Kodi">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<!--<link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
--->
 <link rel="stylesheet" href="css/app.css" type="text/css" />
-<!--
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/fast-buttons.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/core.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/buttons.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/dialogs.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/page.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/pagestacks.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tab.js"></script>
-<script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
--->
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
 <script src="js/controllers.js"></script>
 </head>
 <body>
-   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);background-color: red; color: white; display: none; font-size:larger;"></div>
-   <div class="header"><span class="title">Play on Kodi</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="!showSettings">Settings</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="showSettings">Hide settings</span></div>
+  <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
+  <div class="header">
+    <span class="title">Play on Kodi</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="!showSettings">Settings</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="showSettings">Hide settings</span>
+  </div>
 
 
-    <div ng-show="!showSettings">
-        <div class="searchFieldContainer">
-          <input ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube" focus-me="focusInput" class="searchField">
-          <span ng-show="items">{{filteredItems.length}} results</span>
-        </div>
+  <div ng-show="!showSettings">
+    <div class="searchFieldContainer">
+      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
+    </div>
 
-        <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
-          <div class="imageContainer">
-            <img ng-src="{{item.snippet.thumbnails.default.url}}">
-          </div>
-          <div class="textContainer">
-            <h3>{{item.snippet.title}} - <span style='font-size:smaller'>{{item.age}}</span></h3>
-          </div>
-          <div class="textContainer">{{item.snippet.description}}</div>
-        </div>
-
+    <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
+      <div class="imageContainer">
+        <img ng-src="{{item.snippet.thumbnails.default.url}}">
       </div>
+      <div class="textContainer">
+        <h3>
+          {{item.snippet.title}} - <span style='font-size: smaller'>{{item.age}}</span>
+        </h3>
+      </div>
+      <div class="textContainer">{{item.snippet.description}}</div>
+    </div>
+  </div>
+
+  <div ng-show="showSettings">
+    <h2>Kodi Settings</h2>
+    <table id="deviceForm">
+      <tr>
+        <th>Host name</th>
+        <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address"></td>
+      </tr>
+      <tr>
+        <th>Port</th>
+        <td><input type="number" ng-model="devicePort" placeholder="Port"></td>
+      </tr>
+      <tr>
+        <th>User name</th>
+        <td><input type="text" ng-model="deviceUserName" placeholder="Optional user name"></td>
+      </tr>
+      <tr>
+        <th>Password</th>
+        <td><input type="password" ng-model="devicePassword" placeholder="Optional password"></td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td><input type="text" ng-model="deviceDescription" placeholder="Description"></td>
+      </tr>
+    </table>
+    <button ng-click="saveNewDevice()">Add device</button>
+    <p>{{devices.length}} devices</p>
+    <table ng-show="devices">
+      <tr>
+        <th>Active</th>
+        <th>Host<br>name
+        </th>
+        <th>Description</th>
+      </tr>
+      <tr ng-repeat="device in devices track by $index">
+        <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active"></td>
+        <td>{{device.name}}</td>
+        <td>{{device.description}}</td>
+      </tr>
+    </table>
 
 
-      <div ng-show="showSettings">
-        <h1>Kodi Settings</h1>
-        <table id="deviceForm">
-          <tr><th>Host name</th><td><input type="text" ng-model="deviceName" placeholder="Host name or IP address"></td></tr>
-          <tr><th>Port</th><td><input type="number" ng-model="devicePort" placeholder="Port"></td></tr>
-          <tr><th>User name</th><td><input type="text" ng-model="deviceUserName" placeholder="Optional user name"></td></tr>
-          <tr><th>Password</th><td><input type="password" ng-model="devicePassword" placeholder="Optional password"></td></tr>
-          <tr><th>Description</th><td><input type="text" ng-model="deviceDescription" placeholder="Description"></td></tr>
-        </table>
-        <button ng-click="saveNewDevice()">Add device</button>
-        <p>{{devices.length}} devices</p>
-        <table ng-show="devices">
-          <tr>
-            <th>Active</th>
-            <th>Host<br>name</th>
-            <th>Description</th>
-          </tr>
-          <tr ng-repeat="device in devices track by $index">
-            <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active"></td>
-            <td>{{device.name}}</td>
-            <td>{{device.description}}</td>
-          </tr>
-
-        </table>
-       <h1>You Tube Settings</h1>
-        <div>Max results {{maxResults}} <input ng-model="maxResults" ng-change="saveYtSettings()" type="range" min="1" max="50" ></div>
-        <div>Order
-          <select ng-model="ytOrder" ng-change="saveYtSettings()">
+    <h2>You Tube Settings</h2>
+    <table>
+      <tr>
+        <th>Max results {{maxResults}}</th>
+        <td><input ng-model="maxResults" ng-change="saveYtSettings()" type="range" min="1" max="50"></td>
+      </tr>
+      <tr>
+        <th>Order</th>
+        <td><select ng-model="ytOrder" ng-change="saveYtSettings()">
             <option value="date">Date</option>
             <option value="rating">Rating</option>
             <option value="relevance">Relevance</option>
             <option value="title">Title</option>
             <option value="videoCount">Video count</option>
             <option value="viewCount">View count</option>
-          </select>
-        </div>
-        <div>Safe search
-          <select ng-model="ytSafeSearch" ng-change="saveYtSettings()">
+        </select></td>
+      </tr>
+      <tr>
+        <th>Safe search</th>
+        <td><select ng-model="ytSafeSearch" ng-change="saveYtSettings()">
             <option value="moderate">Moderate</option>
             <option value="none">None</option>
             <option value="strict">Strict</option>
-          </select>
-        </div>
-
+        </select></td>
+      </tr>
+    </table>
+  </div>
 
   <script src="js/app.js"></script>
 </body>
