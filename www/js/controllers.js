@@ -48,6 +48,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
   $scope.maxResults = storageGet("maxResults",5);
   $scope.ytOrder = storageGet("ytOrder","date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
+  $scope.ytClearPlaylist = storageGet("ytClearPlaylist",true);
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue="notOnQueue";
   console.log("Devices: " + JSON.stringify($scope.devices));
@@ -166,6 +167,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
+    storageSet("ytClearPlaylist", $scope.ytClearPlaylist);
   }
   $scope.deselectOtherDevices = function(device) {
     console.log("Deselecting " + $scope.devices.length + " devices.");
