@@ -1,43 +1,24 @@
-#hello-page {
-padding: 1rem;
+body, h1, h2, h3, p, li, span {
+font-family: Ubuntu;
+color:white;
+background:black;
 }
-
-.title, .introduction, .button {
-margin-bottom: 1rem;
+.searchField {
+font-size:x-large;
 }
-
-.is-hidden {
-display: none;
+.header {
+width:100%;
 }
-
-.img-cordova {
-display: block;
-margin: 0 auto;
+.title {
+font-size:xx-large;
 }
-
-.cordova-indicator {
-text-align: center;
-}
-
-@keyframes fade {
-from { opacity: 1.0; }
-50% { opacity: 0.4; }
-to { opacity: 1.0; }
-}
-
-@-webkit-keyframes fade {
-from { opacity: 1.0; }
-50% { opacity: 0.4; }
-to { opacity: 1.0; }
-}
-
-.blink {
-animation:fade 3000ms infinite;
--webkit-animation:fade 3000ms infinite;
+.settings {
+ float:right;
 }
 .listContainer {
-border: 1px solid #333;
-overflow: auto
+border: 1px solid silver;
+overflow: auto;
+margin-top:5px;
 }
 .imageContainer img {
 float: left;
@@ -51,11 +32,4 @@ margin-left: 130px;
 .textContainer h3 {
 font-size:larger;
 font-weight:bold;
-}
-.searchFieldContainer {
-width:90%;
-text-align:center;
-}
-#searchField {
-width:90%;
 }

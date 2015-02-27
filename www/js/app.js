@@ -10,8 +10,6 @@ window.onload = function () {
         elem.className = elem.className.replace(className, '');
     };
 
-    var UI = new UbuntuUI();
-    UI.init();
 
     document.addEventListener("deviceready", function() {
         if (console && console.log) {

@@ -40,13 +40,32 @@ pokApp.directive("loadingIndicator", function() {
   };
 });
 
+
+pokApp.directive('focusMe', function($timeout) {
+  return {
+    scope: { trigger: '=focusMe' },
+    link: function(scope, element) {
+      scope.$watch('trigger', function(value) {
+          console.log("focus me triggered value: " + value);
+        if(value === true) {
+            element[0].focus();
+        } else {
+            element[0].blur();
+        }
+      });
+    }
+  };
+});
+
 pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) {
  // localStorage.removeItem("devices");
+  $scope.showSettings=false;
   $scope.maxResults = storageGet("maxResults",5);
   $scope.ytOrder = storageGet("ytOrder","date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue="notOnQueue";
+  $scope.focusInput=true;
   console.log("Devices: " + JSON.stringify($scope.devices));
   if (typeof $scope.devices == "undefined" || isBlank($scope.devices)) {
     console.log("Devices is blank.");
@@ -57,6 +76,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
   $scope.searchYouTube = function() {
     console.log('Looking up: ' + $scope.searchField + " max results:" + $scope.maxResults);
     var url = "https://www.googleapis.com/youtube/v3/search";
+    $scope.focusInput=false;
     var httpConfig = {
           method: "GET",
           params: {

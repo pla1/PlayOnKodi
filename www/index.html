@@ -5,9 +5,10 @@
 <title>Play on Kodi</title>
 <meta name="description" content="Play on Kodi">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
+<!--<link href="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/css/appTemplate.css" rel="stylesheet" type="text/css" />
+-->
 <link rel="stylesheet" href="css/app.css" type="text/css" />
-
+<!--
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/fast-buttons.js"></script>
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/core.js"></script>
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/buttons.js"></script>
@@ -16,29 +17,19 @@
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/pagestacks.js"></script>
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tab.js"></script>
 <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
-<script src="js/jquery-1.11.2.js"></script>
+-->
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
 <script src="js/controllers.js"></script>
 </head>
 <body>
-  <div data-role="mainview">
-    <div loading-indicator style='position: absolute; left: 5px; top: 5px; background-color: red; color: white; display: none'></div>
-
-    <header data-role="header">
-      <ul data-role="tabs">
-        <li data-role="tabitem" data-page="main-page">Play on Kodi</li>
-        <li data-role="tabitem" data-page="KodiSettings">Kodi Settings</li>
-        <li data-role="tabitem" data-page="YouTubeSettings">YouTube Settings</li>
-      </ul>
-    </header>
+   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%);background-color: red; color: white; display: none; font-size:larger;"></div>
+   <div class="header"><span class="title">Play on Kodi</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="!showSettings">Settings</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="showSettings">Hide settings</span></div>
 
 
-
-    <div data-role="content">
-      <div data-role="tab" id="main-page">
+    <div ng-show="!showSettings">
         <div class="searchFieldContainer">
-          <input ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube">
+          <input ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube" focus-me="focusInput" class="searchField">
           <span ng-show="items">{{filteredItems.length}} results</span>
         </div>
 
@@ -55,7 +46,8 @@
       </div>
 
 
-      <div data-role="tab" id="KodiSettings">
+      <div ng-show="showSettings">
+        <h1>Kodi Settings</h1>
         <table id="deviceForm">
           <tr><th>Host name</th><td><input type="text" ng-model="deviceName" placeholder="Host name or IP address"></td></tr>
           <tr><th>Port</th><td><input type="number" ng-model="devicePort" placeholder="Port"></td></tr>
@@ -78,12 +70,7 @@
           </tr>
 
         </table>
-
-      </div>
-
-
-
-      <div data-role="tab" id="YouTubeSettings">
+       <h1>You Tube Settings</h1>
         <div>Max results {{maxResults}} <input ng-model="maxResults" ng-change="saveYtSettings()" type="range" min="1" max="50" ></div>
         <div>Order
           <select ng-model="ytOrder" ng-change="saveYtSettings()">
@@ -102,11 +89,8 @@
             <option value="strict">Strict</option>
           </select>
         </div>
-      </div>
 
-    </div>
 
-  </div>
   <script src="js/app.js"></script>
 </body>
 </html>
