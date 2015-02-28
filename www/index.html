@@ -13,11 +13,14 @@
 <body>
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
   <div class="header">
-    <span class="title">Play on Kodi</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="!showSettings">Settings</span><span class="settings" ng-click="showSettings = !showSettings" ng-show="showSettings">Hide settings</span>
+    <span class="title">Play on Kodi</span>
+    <button  ng-click="showSettings = !showSettings">{{ showSettings ? 'Hide settings' : 'Settings' }}</button>
+    <br>
+    <button ng-click="showRemoteControl = !showRemoteControl">{{ showRemoteControl ? 'Hide remote' : 'Remote' }}</button>
   </div>
+  <p>&nbsp;</p>
 
-
-  <div ng-show="!showSettings">
+  <div ng-show="!showSettings && !showRemoteControl">
     <div class="searchFieldContainer">
       <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
     </div>
@@ -33,6 +36,20 @@
       </div>
       <div class="textContainer">{{item.snippet.description}}</div>
     </div>
+  </div>
+
+
+  <div ng-show="showRemoteControl" class="remoteControl">
+    <button ng-click="kodiClearPlaylistAll()">Clear playlist</button>
+    <button ng-click="kodiMusicParty()">Music party</button>
+    <button ng-click="kodiMute()">Mute</button>
+    <button ng-click="kodiPlayNextAll()">Next</button><br>
+    <button ng-click="kodiPlayPauseAll()">Pause / Play</button>
+    <button ng-click="kodiStopAll()">Stop</button>
+    <button ng-click="kodiShutdown()">Shutdown</button>
+    <p>&nbsp;</p>
+    <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
+    <br><label for="volumeId">Volume {{volumeObject.level}}</label>
   </div>
 
   <div ng-show="showSettings">
@@ -72,6 +89,7 @@
         <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active"></td>
         <td>{{device.name}}</td>
         <td>{{device.description}}</td>
+        <td><button ng-click="deleteDevice(device)">Delete</button></td>
       </tr>
     </table>
 

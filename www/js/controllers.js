@@ -50,6 +50,8 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue="notOnQueue";
+  $scope.volumeObject = {level: 11};
+
   console.log("Devices: " + JSON.stringify($scope.devices));
   if (typeof $scope.devices == "undefined" || isBlank($scope.devices)) {
     console.log("Devices is blank.");
@@ -160,6 +162,189 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     });
   }
 
+  $scope.kodiVolume = function() {
+    console.log("Kodi volume: "+$scope.volumeObject.level);
+    var url = $scope.getUrl();
+    var data = {
+      jsonrpc:"2.0",
+      method: "Application.SetVolume",
+      id: 1,
+      params: {
+              volume: parseInt($scope.volumeObject.level)
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
+    });
+  }
+
+  $scope.kodiGetVolume = function() {
+    console.log("Kodi get volume");
+    var url = $scope.getUrl();
+    var data = {
+      jsonrpc:"2.0",
+      method: "Application.GetProperties",
+      id: 1,
+      params: {
+              properties:['volume']
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
+      $scope.volumeObject.level = data.result.volume;
+    });
+  }
+
+  $scope.kodiPlayPause = function(playerId) {
+    console.log("Kodi play / pause toggle");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.PlayPause",
+      id: 1,
+      params: {
+        playerid:playerId
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
+    });
+  }
+  $scope.kodiPlayPauseAll = function() {
+    console.log("Kodi play / pause all players");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.GetActivePlayers",
+      id: 1,
+    };
+    $http.post(url, data).success(function(data) {
+      console.log("GetActivePlayers response: " + JSON.stringify(data));
+      var playerArray = data.result;
+      for (var i in playerArray) {
+          $scope.kodiPlayPause(playerArray[i].playerid);
+      }
+    });
+  }
+
+  $scope.kodiStop = function(playerId) {
+    console.log("Kodi stop playerid: " + playerId);
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.Stop",
+      id: 1,
+      params: {
+        playerid:playerId
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
+    });
+  }
+
+  $scope.kodiStopAll = function() {
+    console.log("Kodi stop all players");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.GetActivePlayers",
+      id: 1,
+    };
+    $http.post(url, data).success(function(data) {
+      console.log("GetActivePlayers response: " + JSON.stringify(data));
+      var playerArray = data.result;
+      for (var i in playerArray) {
+          $scope.kodiStop(playerArray[i].playerid);
+      }
+    });
+  }
+
+  $scope.kodiMusicParty = function() {
+    console.log("Kodi stop");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.Open",
+      id: 1,
+      params: {
+        item:{partymode:"music"}
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(data);
+      setTimeout($scope.kodiBack,4000);
+      setTimeout($scope.kodiBack,5000);
+    });
+  }
+
+  $scope.kodiPlayNext = function(playerId) {
+    console.log("Kodi play next");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.Goto",
+      id: 1,
+      params: {
+        playerid:playerId,
+              to:"next"
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(data);
+    });
+  }
+
+  $scope.kodiPlayNextAll = function() {
+    console.log("Kodi play / pause all players");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Player.GetActivePlayers",
+      id: 1,
+    };
+    $http.post(url, data).success(function(data) {
+      console.log("GetActivePlayers response: " + JSON.stringify(data));
+      var playerArray = data.result;
+      for (var i in playerArray) {
+          $scope.kodiPlayNext(playerArray[i].playerid);
+      }
+    });
+  }
+  $scope.kodiClearPlaylist = function(playListId) {
+    console.log("Kodi play next");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Playlist.Clear",
+      id: 1,
+      params: {
+        playlistid:playListId
+
+      }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(data);
+    });
+  }
+
+  $scope.kodiClearPlaylistAll = function() {
+    console.log("Kodi clear all playlists");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Playlist.GetPlaylists",
+      id: 1,
+    };
+    $http.post(url, data).success(function(data) {
+      console.log("Get playlists response: " + JSON.stringify(data));
+      var playlistArray = data.result;
+      for (var i in playlistArray) {
+          $scope.kodiClearPlaylist(playlistArray[i].playlistid);
+      }
+    });
+  }
+
   $scope.kodiMute = function() {
     console.log("Kodi mute");
     var url = $scope.getUrl();
@@ -168,13 +353,35 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       method: "Application.SetMute",
       id: 1,
       params: {
-        item: {
-          mute:"toggle"
-        }
+              mute:"toggle"
       }
     };
     $http.post(url, data).success(function(data) {
-      console.log(data);
+      console.log(JSON.stringify(data));
+    });
+  }
+  $scope.kodiShutdown = function() {
+    console.log("Kodi shutdown");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "System.Shutdown",
+      id: 1
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
+    });
+  }
+  $scope.kodiBack = function() {
+    console.log("Kodi back");
+    var url = $scope.getUrl();
+    var data ={
+      jsonrpc:"2.0",
+      method: "Input.Back",
+      id: 1
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(JSON.stringify(data));
     });
   }
 
@@ -212,6 +419,20 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     }
     $scope.saveDevice(device);
   }
+  $scope.deleteDevice = function(device) {
+      console.log("Delete device: " + JSON.stringify(device) + " device quantity: " + $scope.devices.length);
+      for (var i in $scope.devices) {
+          if (device.id==$scope.devices[i].id) {
+              $scope.devices.splice(i,1);
+          }
+          if (device.active) {
+              if ($scope.devices.length > 0) {
+                  $scope.devices[0].active=true;
+              }
+          }
+      }
+  }
+
   $scope.saveDevice = function(device) {
     console.log("Saving device: " + JSON.stringify(device) + " device quantity: " + $scope.devices.length);
     for (i = 0; i < $scope.devices.length; i++) {
@@ -243,6 +464,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     localStorage.setItem("devices",JSON.stringify($scope.devices));
     console.log("Devices after saving: " + $scope.devices);
   }
+  $scope.kodiGetVolume();
 
 } ]);
 
