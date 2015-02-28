@@ -48,7 +48,6 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
   $scope.maxResults = storageGet("maxResults",5);
   $scope.ytOrder = storageGet("ytOrder","date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch","moderate");
-  $scope.ytClearPlaylist = storageGet("ytClearPlaylist",true);
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue="notOnQueue";
   console.log("Devices: " + JSON.stringify($scope.devices));
@@ -91,14 +90,14 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
   }
 
   $scope.kodiAddToPlaylist = function(item) {
-    console.log("playOnKodi" + JSON.stringify(item));
+    console.log("kodiAddToPlaylist" + JSON.stringify(item));
     var url = $scope.getUrl();
     var data = {
           jsonrpc : "2.0",
           method : "Playlist.Add",
           id : 1,
           params : {
-            playlistid : 1,
+            playlistid:0,
             item : {
               file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + item.id.videoId
             }
@@ -108,6 +107,22 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       console.log(data);
       item.kodiStatus="addedToQueue";
       $scope.kodiPlayIfIdle();
+    });
+
+  }
+  $scope.kodiClearPlaylist = function() {
+    console.log("kodiClearPlaylist");
+    var url = $scope.getUrl();
+    var data = {
+          jsonrpc : "2.0",
+          method : "Playlist.Clear",
+          id : 1,
+          params : {
+            playlistid:0,
+          }
+    };
+    $http.post(url, data).success(function(data) {
+      console.log(data);
     });
 
   }
@@ -126,6 +141,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       }
     });
   }
+
   $scope.kodiPlay = function() {
     console.log("Kodi play");
     var url = $scope.getUrl();
@@ -135,7 +151,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       id: 1,
       params: {
         item: {
-          playlistid:1
+          playlistid:0
         }
       }
     };
@@ -167,7 +183,6 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
-    storageSet("ytClearPlaylist", $scope.ytClearPlaylist);
   }
   $scope.deselectOtherDevices = function(device) {
     console.log("Deselecting " + $scope.devices.length + " devices.");
