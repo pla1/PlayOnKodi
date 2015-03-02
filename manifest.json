@@ -1,7 +1,7 @@
 {
     "architecture": "all",
     "description": "Search for and play YouTube videos on your Kodi entertainment system",
-    "framework": "ubuntu-sdk-14.04",
+    "framework": "ubuntu-sdk-14.10-html",
     "hooks": {
         "PlayOnKodi": {
             "apparmor": "PlayOnKodi.apparmor",
