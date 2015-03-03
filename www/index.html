@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="css/app.css" type="text/css" />
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
-<script src="js/controllers.js"></script>
+<script src="js/controllersWS.js"></script>
 </head>
 <body>
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
@@ -18,6 +18,7 @@
     <br>
     <button ng-click="showRemoteControl = !showRemoteControl">{{ showRemoteControl ? 'Hide remote' : 'Remote' }}</button>
   </div>
+  <div class="bottomRightCorner">{{messageLabel}}</div>
   <p>&nbsp;</p>
 
   <div ng-show="!showSettings && !showRemoteControl">

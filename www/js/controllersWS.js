@@ -1,5 +1,37 @@
 var pokApp = angular.module('pokModule', []);
 
+pokApp.factory('webSocketService', function($rootScope) {
+  console.log("webSocketService");
+  var Chat = {};
+  Chat.socket = null;
+  Chat.connect = (function(host) {
+    console.log("Chat.connect");
+    if ('WebSocket' in window) {
+      Chat.socket = new WebSocket(host);
+    } else if ('MozWebSocket' in window) {
+      Chat.socket = new MozWebSocket(host);
+    } else {
+      console.log('Error: WebSocket is not supported by this browser.');
+      return;
+    }
+
+  });
+  Chat.initialize = function() {
+    console.log("webSocketService Chat.initialize");
+      Chat.connect('ws://i3c:9090');
+  };
+  Chat.sendMessage = (function() {
+
+  });
+  return Chat;
+});
+
+
+
+
+
+
+
 
 
 pokApp.config(function($httpProvider) {
@@ -42,7 +74,7 @@ pokApp.directive("loadingIndicator", function() {
 
 
 
-pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) {
+pokApp.controller('PokController', [ '$scope', '$http','webSocketService', function($scope, $http, webSocketService) {
  // localStorage.removeItem("devices");
   $scope.showSettings=false;
   $scope.maxResults = storageGet("maxResults",5);
@@ -58,6 +90,39 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
     $scope.devices=[];
     localStorage.setItem("devices",JSON.stringify($scope.devices));
   }
+
+
+
+       webSocketService.initialize();
+       webSocketService.socket.onmessage = function(message) {
+         var jsonObject = JSON.parse(message.data);
+         $scope.messageLabel = jsonObject.method;
+         $scope.$apply();
+         console.log("Web Socket message received: " + message.data);
+         //updateEmployee(message.data);
+       };
+       webSocketService.socket.onopen = function() {
+         console.log('Info: WebSocket connection opened.');
+         $scope.messageLabel = "WebSocket connection opened.";
+         console.log($scope.messageLabel);
+         $scope.$apply();
+       };
+       webSocketService.socket.onclose = function() {
+         console.log('Info: WebSocket closed.');
+         $scope.messageLabel = "WebSocket closed. Will retry in five seconds.";
+         console.log($scope.messageLabel);
+         $scope.$apply();
+         setTimeout(function() {
+           webSocketService.initialize();
+         }, 5000);
+       };
+
+
+
+
+
+
+
 
   $scope.searchYouTube = function() {
     console.log('Looking up: ' + $scope.searchField + " max results:" + $scope.maxResults);
@@ -123,9 +188,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
             playlistid:0,
           }
     };
-    $http.post(url, data).success(function(data) {
-      console.log(data);
-    });
+   webSocketService.socket.send(JSON.stringify(data));
 
   }
 
@@ -206,9 +269,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
         playerid:playerId
       }
     };
-    $http.post(url, data).success(function(data) {
-      console.log(JSON.stringify(data));
-    });
+   webSocketService.socket.send(JSON.stringify(data));
   }
   $scope.kodiPlayPauseAll = function() {
     console.log("Kodi play / pause all players");
@@ -229,7 +290,6 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
 
   $scope.kodiStop = function(playerId) {
     console.log("Kodi stop playerid: " + playerId);
-    var url = $scope.getUrl();
     var data ={
       jsonrpc:"2.0",
       method: "Player.Stop",
@@ -238,9 +298,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
         playerid:playerId
       }
     };
-    $http.post(url, data).success(function(data) {
-      console.log(JSON.stringify(data));
-    });
+    webSocketService.socket.send(JSON.stringify(data));
   }
 
   $scope.kodiStopAll = function() {
@@ -271,11 +329,9 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
         item:{partymode:"music"}
       }
     };
-    $http.post(url, data).success(function(data) {
-      console.log(data);
-      setTimeout($scope.kodiBack,4000);
-      setTimeout($scope.kodiBack,5000);
-    });
+   webSocketService.socket.send(JSON.stringify(data));
+   setTimeout($scope.kodiBack,4000);
+   setTimeout($scope.kodiBack,5000);
   }
 
   $scope.kodiPlayNext = function(playerId) {
@@ -290,9 +346,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
               to:"next"
       }
     };
-    $http.post(url, data).success(function(data) {
-      console.log(data);
-    });
+    webSocketService.socket.send(JSON.stringify(data));
   }
 
   $scope.kodiPlayNextAll = function() {
@@ -347,6 +401,20 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
 
   $scope.kodiMute = function() {
     console.log("Kodi mute");
+    var data = {
+      jsonrpc:"2.0",
+      method: "Application.SetMute",
+      id: 1,
+      params: {
+              mute:"toggle"
+      }
+    };
+    console.log("Websocket sending: " + JSON.stringify(data));
+    webSocketService.socket.send(JSON.stringify(data));
+  }
+
+  $scope.kodiMuteNotWS = function() {
+    console.log("Kodi mute");
     var url = $scope.getUrl();
     var data ={
       jsonrpc:"2.0",
@@ -368,9 +436,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       method: "System.Shutdown",
       id: 1
     };
-    $http.post(url, data).success(function(data) {
-      console.log(JSON.stringify(data));
-    });
+    webSocketService.socket.send(JSON.stringify(data));
   }
   $scope.kodiBack = function() {
     console.log("Kodi back");
@@ -380,9 +446,7 @@ pokApp.controller('PokController', [ '$scope', '$http', function($scope, $http) 
       method: "Input.Back",
       id: 1
     };
-    $http.post(url, data).success(function(data) {
-      console.log(JSON.stringify(data));
-    });
+   webSocketService.socket.send(JSON.stringify(data));
   }
 
   $scope.saveYtSettings = function() {
