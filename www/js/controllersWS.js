@@ -75,8 +75,9 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   $scope.ytSafeSearch = storageGet("ytSafeSearch", "moderate");
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue = "notOnQueue";
+  $scope.muteButtonText="Mute";
   $scope.volumeObject = {
-    level : 11
+    level : 50
   };
 
   console.log("Devices: " + JSON.stringify($scope.devices));
@@ -89,12 +90,28 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   webSocketService.initialize();
   webSocketService.socket.onmessage = function(message) {
     var jsonObject = JSON.parse(message.data);
-    if (jsonObject.method) {
-      $scope.messageLabel = jsonObject.method;
+    console.log("WebSocket message received: " + message.data);
+    console.log("Has property result: " + jsonObject.hasOwnProperty("result") + JSON.stringify(jsonObject));
+    if (jsonObject.hasOwnProperty("result")) {
+      if(jsonObject.result.hasOwnProperty("volume")) {
+        $scope.volumeObject.level = jsonObject.result.volume;
+        console.log("Setting volume to:" + $scope.volumeObject.level);
+      }
+    }
+    if (!jsonObject.hasOwnProperty("method")) {
+      return;
+    }
+    var methodName = jsonObject.method;
+    if (methodName == "Application.OnVolumeChanged") {
+        $scope.volumeObject.level = jsonObject.params.data.volume.toFixed(0);
+        if (jsonObject.params.data.muted) {
+            $scope.muteButtonText="Unmute";
+        } else {
+            $scope.muteButtonText="Mute";
+        }
+        $scope.messageLabel = "Volume: " + $scope.volumeObject.level + " muted: " + jsonObject.params.data.muted;
     }
     $scope.$apply();
-    console.log("Web Socket message received: " + message.data);
-    // updateEmployee(message.data);
   };
   webSocketService.socket.onopen = function() {
     console.log('Info: WebSocket connection opened.');
@@ -207,7 +224,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
-// TODOO HANDLE IN THE WEBSOCKET ENVIRONMENT.
+
   $scope.kodiGetVolume = function() {
     console.log("Kodi get volume");
     var data = {
