@@ -118,6 +118,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     $scope.messageLabel = "WebSocket connection opened.";
     console.log($scope.messageLabel);
     $scope.kodiGetVolume();
+    $scope.kodiGetActivePlayers();
+    $scope.kodiGetItemAll();
     $scope.$apply();
   };
   webSocketService.socket.onclose = function() {
@@ -186,6 +188,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
+  $scope.kodiGetActivePlayers = function() {
+        var data = {
+          jsonrpc : "2.0",
+          method : "Player.GetActivePlayers",
+          id : 1
+        };
+        webSocketService.socket.send(JSON.stringify(data));
+  }
+
 //TODO HANDLE IN THE WEBSOCKET ENVIRONMENT
   $scope.kodiPlayIfIdle = function() {
     var data = {
@@ -193,6 +204,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
       method : "Player.GetActivePlayers",
       id : 1
     };
+    webSocketService.socket.send(JSON.stringify(data));
     console.log("Play if idle " + JSON.stringify(data));
     $scope.kodiPlay();
   }
@@ -210,6 +222,20 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
       }
     };
     webSocketService.socket.send(JSON.stringify(data));
+  }
+  $scope.kodiGetItemAll = function() {
+      for (i =0;i<3;i++) {
+          var data = {
+              jsonrpc: "2.0",
+              method: "Player.GetItem",
+              id: 1,
+              params : {
+                playerid : i,
+                properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart", "streamdetails"],
+              }
+          }
+           webSocketService.socket.send(JSON.stringify(data));
+      }
   }
 
   $scope.kodiVolume = function() {
@@ -250,14 +276,11 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
-  // TODOO HANDLE IN THE WEBSOCKET ENVIRONMENT.
   $scope.kodiPlayPauseAll = function() {
     console.log("Kodi play / pause all players");
-    var data = {
-      jsonrpc : "2.0",
-      method : "Player.GetActivePlayers",
-      id : 1,
-    };
+    for (i = 0; i < 3;i++) {
+        $scope.kodiPlayPause(i);
+    }
   }
 
   $scope.kodiStop = function(playerId) {
@@ -272,14 +295,11 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
-  // TODOO HANDLE IN THE WEBSOCKET ENVIRONMENT.
   $scope.kodiStopAll = function() {
     console.log("Kodi stop all players");
-    var data = {
-      jsonrpc : "2.0",
-      method : "Player.GetActivePlayers",
-      id : 1,
-    };
+      for (i = 0; i < 3;i++) {
+          $scope.kodiStop(i);
+      }
   }
 
   $scope.kodiMusicParty = function() {
@@ -312,15 +332,11 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
-  // TODOO HANDLE IN THE WEBSOCKET ENVIRONMENT.
 
   $scope.kodiPlayNextAll = function() {
-    console.log("Kodi play / pause all players");
-    var data = {
-      jsonrpc : "2.0",
-      method : "Player.GetActivePlayers",
-      id : 1,
-    };
+      for (i = 0; i < 3;i++) {
+          $scope.kodiPlayNext(i);
+      }
   }
 
   $scope.kodiClearPlaylist = function(playListId) {
@@ -336,16 +352,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     };
     webSocketService.socket.send(JSON.stringify(data));
   }
-  // TODOO HANDLE IN THE WEBSOCKET ENVIRONMENT.
 
   $scope.kodiClearPlaylistAll = function() {
     console.log("Kodi clear all playlists");
-    var data = {
-      jsonrpc : "2.0",
-      method : "Playlist.GetPlaylists",
-      id : 1,
-    };
-
+      for (i = 0; i < 3;i++) {
+          $scope.kodiClearPlaylist(i);
+      }
   }
 
   $scope.kodiMute = function() {
