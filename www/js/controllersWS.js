@@ -79,7 +79,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   $scope.volumeObject = {
     level : 50
   };
-
+  $scope.userAgent = navigator.userAgent;
   console.log("Devices: " + JSON.stringify($scope.devices));
   if (typeof $scope.devices == "undefined" || isBlank($scope.devices)) {
     console.log("Devices is blank.");

@@ -53,4 +53,6 @@ width:8em;
 .bottomRightCorner {
 position: absolute; bottom: 0px; right: 0px;
 }
-
+#userAgent {
+font-size:smaller;
+}
