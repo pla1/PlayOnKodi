@@ -51,6 +51,8 @@
     <p>&nbsp;</p>
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>
+    <div class="songHeader" ng-show="artist">{{artist}} - {{album}} - {{title}}</div>
+    <img ng-src="{{fanart}}" style="max-height: 100%; max-width: 100%" ng-show="fanart">
   </div>
 
   <div ng-show="showSettings">

@@ -88,6 +88,9 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   }
 
   webSocketService.initialize();
+
+
+
   webSocketService.socket.onmessage = function(message) {
     var jsonObject = JSON.parse(message.data);
     console.log("WebSocket message received: " + message.data);
@@ -98,9 +101,9 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         console.log("Setting volume to:" + $scope.volumeObject.level);
       }
     }
-    if (!jsonObject.hasOwnProperty("method")) {
-      return;
-    }
+//    if (!jsonObject.hasOwnProperty("method")) {
+//      return;
+//    }
     var methodName = jsonObject.method;
     if (methodName == "Application.OnVolumeChanged") {
         $scope.volumeObject.level = jsonObject.params.data.volume.toFixed(0);
@@ -111,8 +114,71 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         }
         $scope.messageLabel = "Volume: " + $scope.volumeObject.level + " muted: " + jsonObject.params.data.muted;
     }
+    if (methodName == "Player.OnPlay") {
+        var id = jsonObject.params.data.item.id;
+        var type = jsonObject.params.data.item.type;
+        console.log("Player.OnPlay id: " + id + " type: " + type);
+        var data = {
+            jsonrpc : "2.0",
+            method : "AudioLibrary.GetSongDetails",
+            id : 1,
+            params : {
+              songid : id,
+                properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart"]
+            }
+        }
+        webSocketService.socket.send(JSON.stringify(data));
+
+    }
+    var fanartRegEx = /^image:\/\/(.*)\/$/;
+    if (jsonObject.hasOwnProperty("result")) {
+        var result = jsonObject.result;
+        if (result.hasOwnProperty("item")) {
+            var item = jsonObject.result.item;
+            if (item.hasOwnProperty("fanart")) {
+                $scope.album = jsonObject.result.item.album;
+                $scope.title = jsonObject.result.item.title;
+                $scope.artist = jsonObject.result.item.artist[0];
+                var fanart = jsonObject.result.item.fanart;
+                fanart = decodeURIComponent(fanart);
+                if (fanartRegEx.test(fanart)){
+                  fanart = fanartRegEx.exec(fanart)[1];
+                  console.log("********** FANART: " + fanart);
+                  $scope.fanart = fanart;
+                } else {
+                  console.log("CLEAR FANART IN SCOPE");
+                  $scope.fanart="";
+                }
+            }
+        }
+    }
+    if (jsonObject.hasOwnProperty("result")) {
+        var result = jsonObject.result;
+        if (result.hasOwnProperty("songdetails")) {
+            var songdetails = jsonObject.result.songdetails;
+            if (songdetails.hasOwnProperty("fanart")) {
+                $scope.album = jsonObject.result.songdetails.album;
+                $scope.title = jsonObject.result.songdetails.title;
+                $scope.artist = jsonObject.result.songdetails.artist[0];
+                $scope.fanart="";
+                var fanart = jsonObject.result.songdetails.fanart;
+                fanart = decodeURIComponent(fanart);
+                if (fanartRegEx.test(fanart)){
+                  fanart = fanartRegEx.exec(fanart)[1];
+                  console.log("********** FANART: " + fanart);
+                  $scope.fanart = fanart;
+                } else {
+                  console.log("CLEAR FANART IN SCOPE");
+                  $scope.fanart="";
+                }
+            }
+        }
+    }
     $scope.$apply();
   };
+
+
+
   webSocketService.socket.onopen = function() {
     console.log('Info: WebSocket connection opened.');
     $scope.messageLabel = "WebSocket connection opened.";
