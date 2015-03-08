@@ -10,7 +10,7 @@
 <script src="js/angular.js"></script>
 <script src="js/controllersWS.js"></script>
 </head>
-<body ng-style="fanart != '' && {'background-image':'url('+fanart +')'}">
+<body ng-style="backgroundImageUrl != '' && {'background-image':'url('+backgroundImageUrl +')'}">
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
   <div class="header">
     <span class="title">Play on Kodi</span>
@@ -95,7 +95,9 @@
         <td><button ng-click="deleteDevice(device)">Delete</button></td>
       </tr>
     </table>
-    <input type="checkbox" ng-model="transparentButtons" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons
+    <input type="checkbox" ng-model="transparentButtons"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons
+    <input type="checkbox" ng-model="pictureSlideshowAsBackground" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Picture slideshow as background
+    <input type="checkbox" ng-model="fanartAsBackground"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Fanart as background
 
 
     <h2>You Tube Settings</h2>

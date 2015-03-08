@@ -77,6 +77,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   $scope.maxResults = storageGet("maxResults", 5);
   $scope.ytOrder = storageGet("ytOrder", "date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch", "moderate");
+  $scope.pictureSlideshowAsBackground = storageGet("pictureSlideshowAsBackground", "yes");
+  $scope.fanartAsBackground = storageGet("fanartAsBackground", "yes");
   $scope.transparentButtons = storageGet("transparentButtons", "yes");
   toggleTransparentButtons("yes" == $scope.transparentButtons);
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
@@ -123,7 +125,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     if (methodName == "Player.OnPlay") {
         var type = jsonObject.params.data.item.type;
         if (type == "movie") {
-            $scope.fanart="";
+            $scope.backgroundImageUrl="";
             $scope.album="";
             $scope.artist="";
             $scope.title = jsonObject.params.data.item.title;
@@ -143,8 +145,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
           }
           webSocketService.socket.send(JSON.stringify(data));
         }
-        if (type == "picture") {
-            $scope.fanart = jsonObject.params.data.item.file;
+        if (type == "picture" && $scope.pictureSlideshowAsBackground == "yes") {
+            $scope.backgroundImageUrl = jsonObject.params.data.item.file;
         }
     }
     var fanartRegEx = /^image:\/\/(.*)\/$/;
@@ -155,7 +157,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
             if (item.hasOwnProperty("fanart")) {
                 console.log("Has fanart.");
                 var type = jsonObject.result.item.type;
-                $scope.fanart="";
+                $scope.backgroundImageUrl="";
                 $scope.album="";
                 $scope.title="";
                 $scope.artist="";
@@ -165,10 +167,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
                   $scope.artist = jsonObject.result.item.artist[0];
                   var fanart = jsonObject.result.item.fanart;
                   fanart = decodeURIComponent(fanart);
-                  if (fanartRegEx.test(fanart)){
+                  if (fanartRegEx.test(fanart) && $scope.fanartAsBackground == "yes"){
                     fanart = fanartRegEx.exec(fanart)[1];
                     console.log("********** FANART: " + fanart);
-                    $scope.fanart = fanart;
+                    $scope.backgroundImageUrl = fanart;
                   }
                }
                if (type == "unknown") {
@@ -187,16 +189,16 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
                 $scope.album = jsonObject.result.songdetails.album;
                 $scope.title = jsonObject.result.songdetails.title;
                 $scope.artist = jsonObject.result.songdetails.artist[0];
-                $scope.fanart="";
+                $scope.backgroundImageUrl="";
                 var fanart = jsonObject.result.songdetails.fanart;
                 fanart = decodeURIComponent(fanart);
-                if (fanartRegEx.test(fanart)){
+                if (fanartRegEx.test(fanart) && $scope.fanartAsBackground == "yes"){
                   fanart = fanartRegEx.exec(fanart)[1];
                   console.log("********** FANART: " + fanart);
-                  $scope.fanart = fanart;
+                  $scope.backgroundImageUrl = fanart;
                 } else {
                   console.log("CLEAR FANART IN SCOPE");
-                  $scope.fanart="";
+                  $scope.backgroundImageUrl="";
                 }
             }
         }
@@ -491,6 +493,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
+    storageSet("fanartAsBackground", $scope.fanartAsBackground);
+    storageSet("pictureSlideshowAsBackground", $scope.pictureSlideshowAsBackground);
     storageSet("transparentButtons", $scope.transparentButtons);
     toggleTransparentButtons("yes" == $scope.transparentButtons);
   }
