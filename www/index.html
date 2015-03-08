@@ -51,7 +51,7 @@
     <p>&nbsp;</p>
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>
-    <div class="songHeader" ng-show="artist">{{artist}} - {{album}} - {{title}}</div>
+    <div class="songHeader" ng-show="title">{{artist}} - {{album}} - {{title}}</div>
 
   </div>
 
@@ -95,17 +95,18 @@
         <td><button ng-click="deleteDevice(device)">Delete</button></td>
       </tr>
     </table>
+    <input type="checkbox" ng-model="transparentButtons" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons
 
 
     <h2>You Tube Settings</h2>
     <table>
       <tr>
         <th>Max results {{maxResults}}</th>
-        <td><input ng-model="maxResults" ng-change="saveYtSettings()" type="range" min="1" max="50"></td>
+        <td><input ng-model="maxResults" ng-change="saveSettings()" type="range" min="1" max="50"></td>
       </tr>
       <tr>
         <th>Order</th>
-        <td><select ng-model="ytOrder" ng-change="saveYtSettings()">
+        <td><select ng-model="ytOrder" ng-change="saveSettings()">
             <option value="date">Date</option>
             <option value="rating">Rating</option>
             <option value="relevance">Relevance</option>
@@ -116,7 +117,7 @@
       </tr>
       <tr>
         <th>Safe search</th>
-        <td><select ng-model="ytSafeSearch" ng-change="saveYtSettings()">
+        <td><select ng-model="ytSafeSearch" ng-change="saveSettings()">
             <option value="moderate">Moderate</option>
             <option value="none">None</option>
             <option value="strict">Strict</option>

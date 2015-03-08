@@ -77,6 +77,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
   $scope.maxResults = storageGet("maxResults", 5);
   $scope.ytOrder = storageGet("ytOrder", "date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch", "moderate");
+  $scope.transparentButtons = storageGet("transparentButtons", "yes");
+  toggleTransparentButtons("yes" == $scope.transparentButtons);
   $scope.devices = JSON.parse(localStorage.getItem("devices"));
   $scope.notOnQueue = "notOnQueue";
   $scope.muteButtonText="Mute";
@@ -120,6 +122,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
     if (methodName == "Player.OnPlay") {
         var type = jsonObject.params.data.item.type;
+        if (type == "movie") {
+            $scope.fanart="";
+            $scope.album="";
+            $scope.artist="";
+            $scope.title = jsonObject.params.data.item.title;
+        }
+
         if (type == "song") {
           var id = jsonObject.params.data.item.id;
           console.log("Player.OnPlay id: " + id + " type: " + type);
@@ -144,7 +153,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         if (result.hasOwnProperty("item")) {
             var item = jsonObject.result.item;
             if (item.hasOwnProperty("fanart")) {
+                console.log("Has fanart.");
                 var type = jsonObject.result.item.type;
+                $scope.fanart="";
+                $scope.album="";
+                $scope.title="";
+                $scope.artist="";
                 if (type == "song") {
                   $scope.album = jsonObject.result.item.album;
                   $scope.title = jsonObject.result.item.title;
@@ -155,11 +169,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
                     fanart = fanartRegEx.exec(fanart)[1];
                     console.log("********** FANART: " + fanart);
                     $scope.fanart = fanart;
-                  } else {
-                    console.log("CLEAR FANART IN SCOPE");
-                    $scope.fanart="";
-                 }
-              }
+                  }
+               }
+               if (type == "unknown") {
+                 var title = jsonObject.result.item.title;
+                 console.log("Type is unknown. Most likely a YouTube video. Setting title to: " + title);
+                 $scope.title = title;
+               }
             }
         }
     }
@@ -470,11 +486,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     webSocketService.socket.send(JSON.stringify(data));
   }
 
-  $scope.saveYtSettings = function() {
-    console.log("saveYtSettings");
+  $scope.saveSettings = function() {
+    console.log("saveSettings");
     storageSet("ytOrder", $scope.ytOrder);
     storageSet("maxResults", $scope.maxResults);
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
+    storageSet("transparentButtons", $scope.transparentButtons);
+    toggleTransparentButtons("yes" == $scope.transparentButtons);
   }
   $scope.deselectOtherDevices = function(device) {
     console.log("Deselecting " + $scope.devices.length + " devices.");
@@ -553,6 +571,23 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
 
 
 } ]);
+
+function toggleTransparentButtons(b) {
+    var buttons = document.querySelectorAll("button");
+    console.log(buttons.length + " buttons");
+    for (var i = 0;i < buttons.length; i++) {
+      console.log("button backgroundColor: " + buttons[i].style.backgroundColor);
+      if (b) {
+        buttons[i].style.backgroundColor = 'Transparent';
+        buttons[i].style.color='white';
+        buttons[i].style.textShadow='2px 2px 8px black';
+      } else {
+        buttons[i].style.backgroundColor = 'silver';
+        buttons[i].style.color='black';
+        buttons[i].style.textShadow='0px 0px 0px black';
+      }
+    }
+}
 
 function generateUUID() {
   var d = new Date().getTime();
