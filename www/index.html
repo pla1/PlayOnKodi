@@ -10,7 +10,7 @@
 <script src="js/angular.js"></script>
 <script src="js/controllersWS.js"></script>
 </head>
-<body>
+<body ng-style="fanart != '' && {'background-image':'url('+fanart +')'}">
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
   <div class="header">
     <span class="title">Play on Kodi</span>
@@ -52,7 +52,7 @@
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>
     <div class="songHeader" ng-show="artist">{{artist}} - {{album}} - {{title}}</div>
-    <img ng-src="{{fanart}}" style="max-height: 100%; max-width: 100%" ng-show="fanart">
+
   </div>
 
   <div ng-show="showSettings">

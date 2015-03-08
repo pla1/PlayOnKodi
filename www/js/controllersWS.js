@@ -19,6 +19,10 @@ pokApp.factory('webSocketService', function($rootScope) {
   Chat.initialize = function() {
     console.log("webSocketService Chat.initialize");
     var device = getActiveDevice();
+    if (device == null) {
+        return;
+    }
+
     var url = 'ws://' + device.name + ':' + device.port;
     console.log("WebSocket URL: " + url);
     Chat.connect(url);
@@ -86,8 +90,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     $scope.devices = [];
     localStorage.setItem("devices", JSON.stringify($scope.devices));
   }
-
-  webSocketService.initialize();
+  if ($scope.devices.length > 0) {
+    webSocketService.initialize();
 
 
 
@@ -115,10 +119,11 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         $scope.messageLabel = "Volume: " + $scope.volumeObject.level + " muted: " + jsonObject.params.data.muted;
     }
     if (methodName == "Player.OnPlay") {
-        var id = jsonObject.params.data.item.id;
         var type = jsonObject.params.data.item.type;
-        console.log("Player.OnPlay id: " + id + " type: " + type);
-        var data = {
+        if (type == "song") {
+          var id = jsonObject.params.data.item.id;
+          console.log("Player.OnPlay id: " + id + " type: " + type);
+          var data = {
             jsonrpc : "2.0",
             method : "AudioLibrary.GetSongDetails",
             id : 1,
@@ -126,9 +131,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
               songid : id,
                 properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart"]
             }
+          }
+          webSocketService.socket.send(JSON.stringify(data));
         }
-        webSocketService.socket.send(JSON.stringify(data));
-
+        if (type == "picture") {
+            $scope.fanart = jsonObject.params.data.item.file;
+        }
     }
     var fanartRegEx = /^image:\/\/(.*)\/$/;
     if (jsonObject.hasOwnProperty("result")) {
@@ -136,19 +144,22 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         if (result.hasOwnProperty("item")) {
             var item = jsonObject.result.item;
             if (item.hasOwnProperty("fanart")) {
-                $scope.album = jsonObject.result.item.album;
-                $scope.title = jsonObject.result.item.title;
-                $scope.artist = jsonObject.result.item.artist[0];
-                var fanart = jsonObject.result.item.fanart;
-                fanart = decodeURIComponent(fanart);
-                if (fanartRegEx.test(fanart)){
-                  fanart = fanartRegEx.exec(fanart)[1];
-                  console.log("********** FANART: " + fanart);
-                  $scope.fanart = fanart;
-                } else {
-                  console.log("CLEAR FANART IN SCOPE");
-                  $scope.fanart="";
-                }
+                var type = jsonObject.result.item.type;
+                if (type == "song") {
+                  $scope.album = jsonObject.result.item.album;
+                  $scope.title = jsonObject.result.item.title;
+                  $scope.artist = jsonObject.result.item.artist[0];
+                  var fanart = jsonObject.result.item.fanart;
+                  fanart = decodeURIComponent(fanart);
+                  if (fanartRegEx.test(fanart)){
+                    fanart = fanartRegEx.exec(fanart)[1];
+                    console.log("********** FANART: " + fanart);
+                    $scope.fanart = fanart;
+                  } else {
+                    console.log("CLEAR FANART IN SCOPE");
+                    $scope.fanart="";
+                 }
+              }
             }
         }
     }
@@ -197,7 +208,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
       webSocketService.initialize();
     }, 5000);
   };
-
+}
   $scope.searchYouTube = function() {
     console.log('Looking up: ' + $scope.searchField + " max results:" + $scope.maxResults);
     document.getElementById("searchFieldId").blur();
