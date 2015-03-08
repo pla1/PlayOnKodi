@@ -67,3 +67,6 @@ font-size:smaller;
 .songHeader {
 font-size:x-large;
 }
+.settingsCheckboxes input {
+margin-bottom:20px;
+}

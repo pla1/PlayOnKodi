@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="css/app.css" type="text/css" />
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
+<script src="js/reconnecting-websocket.js"></script>
 <script src="js/controllersWS.js"></script>
 </head>
 <body ng-style="backgroundImageUrl != '' && {'background-image':'url('+backgroundImageUrl +')'}">
@@ -95,11 +96,11 @@
         <td><button ng-click="deleteDevice(device)">Delete</button></td>
       </tr>
     </table>
-    <input type="checkbox" ng-model="transparentButtons"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons
-    <input type="checkbox" ng-model="pictureSlideshowAsBackground" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Picture slideshow as background
-    <input type="checkbox" ng-model="fanartAsBackground"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Fanart as background
-
-
+    <div class="settingsCheckboxes">
+      <input type="checkbox" ng-model="transparentButtons"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons<br>
+      <input type="checkbox" ng-model="pictureSlideshowAsBackground" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Picture slideshow as background<br>
+      <input type="checkbox" ng-model="fanartAsBackground"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Fanart as background<br>
+    </div>
     <h2>You Tube Settings</h2>
     <table>
       <tr>
