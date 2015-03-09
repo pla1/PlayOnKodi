@@ -66,7 +66,7 @@ pokApp.directive("loadingIndicator", function() {
 });
 
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', function($scope, $http, webSocketService) {
-  //  localStorage.removeItem("devices");
+    //  localStorage.removeItem("devices");
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -402,7 +402,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
             }
         };
         webSocketService.socket.send(JSON.stringify(data));
-        setTimeout($scope.kodiBack, 4000);
+        setTimeout($scope.kodiHome, 4000);
         setTimeout($scope.kodiBack, 5000);
     }
 
@@ -475,6 +475,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         var data = {
             jsonrpc : "2.0",
             method : "Input.Back",
+            id : 1
+        };
+        webSocketService.socket.send(JSON.stringify(data));
+    }
+    $scope.kodiHome = function() {
+        console.log("Kodi home");
+        var data = {
+            jsonrpc : "2.0",
+            method : "Input.Home",
             id : 1
         };
         webSocketService.socket.send(JSON.stringify(data));
