@@ -1,5 +1,10 @@
 # Play on Kodi
-HTML5 app for Ubuntu Touch. Search for and play YouTube videos on your Kodi entertainment system. 
+HTML5 app for Ubuntu Touch. Use with your Kodi entertainment system.
+
+* Search for and play YouTube videos on your Kodi entertainment system.
+* Basic remote control features 
+* Mirrors fanart as a background
+
 
 ### Software reuse:
 * AngularJS - https://angularjs.org/
