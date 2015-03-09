@@ -70,3 +70,8 @@ font-size:x-large;
 .settingsCheckboxes input {
 margin-bottom:20px;
 }
+.settingsMessage {
+font-size:xx-large;
+background-color:red;
+color:white;
+}

@@ -58,6 +58,7 @@
 
   <div ng-show="showSettings">
     <h2>Kodi Settings</h2>
+    <div class="settingsMessage">{{settingsMessage}}</div>
     <table id="deviceForm">
       <tr>
         <th>Host name</th>
@@ -66,14 +67,6 @@
       <tr>
         <th>WebSocket port</th>
         <td><input type="number" ng-model="devicePort" placeholder="WebSocket port usually 9090"></td>
-      </tr>
-      <tr>
-        <th>User name</th>
-        <td><input type="text" ng-model="deviceUserName" placeholder="Optional user name"></td>
-      </tr>
-      <tr>
-        <th>Password</th>
-        <td><input type="password" ng-model="devicePassword" placeholder="Optional password"></td>
       </tr>
       <tr>
         <th>Description</th>

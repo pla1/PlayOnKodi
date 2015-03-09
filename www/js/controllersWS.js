@@ -66,7 +66,7 @@ pokApp.directive("loadingIndicator", function() {
 });
 
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', function($scope, $http, webSocketService) {
-    // localStorage.removeItem("devices");
+  //  localStorage.removeItem("devices");
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -87,6 +87,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         console.log("Devices is blank.");
         $scope.devices = [];
         localStorage.setItem("devices", JSON.stringify($scope.devices));
+        var msg = "No Kodi devices defined. Please add a device and restart this app.";
+        $scope.messageLabel = msg;
+        $scope.settingsMessage = msg;
+        $scope.showSettings="yes";
     }
     if ($scope.devices.length > 0) {
         webSocketService.initialize();
@@ -551,8 +555,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         device.active = true;
         device.name = $scope.deviceName;
         device.port = $scope.devicePort;
-        device.userName = $scope.deviceUserName;
-        device.password = $scope.devicePassword;
         device.description = $scope.deviceDescription;
         $scope.deselectOtherDevices(device);
         console.log("Devices before saving: " + $scope.devices);
