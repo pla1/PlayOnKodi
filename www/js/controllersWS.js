@@ -310,6 +310,20 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         };
         webSocketService.socket.send(JSON.stringify(data));
     }
+    $scope.kodiPlay = function(playlistid) {
+        console.log("Kodi play playlistid: "  + playlistid);
+        var data = {
+            jsonrpc : "2.0",
+            method : "Player.Open",
+            id : 1,
+            params : {
+                item : {
+                    playlistid : playlistid
+                }
+            }
+        };
+        webSocketService.socket.send(JSON.stringify(data));
+    }
     $scope.kodiGetItemAll = function() {
         for (i =0;i<3;i++) {
             var data = {
@@ -390,7 +404,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
 
     $scope.kodiMusicParty = function() {
-        console.log("Kodi stop");
+        console.log("Kodi music party");
         var data = {
             jsonrpc : "2.0",
             method : "Player.Open",
@@ -439,6 +453,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         };
         webSocketService.socket.send(JSON.stringify(data));
     }
+    $scope.kodiGetPlaylists = function() {
+        console.log("Kodi get playlists");
+        var data = {
+            jsonrpc : "2.0",
+            method : "Playlist.GetPlaylists",
+            id : 1
+        };
+        webSocketService.socket.send(JSON.stringify(data));
+    }
 
     $scope.kodiClearPlaylistAll = function() {
         console.log("Kodi clear all playlists");
@@ -469,6 +492,22 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
             id : 1
         };
         webSocketService.socket.send(JSON.stringify(data));
+    }
+    $scope.kodi500px = function() {
+        var data = {
+            jsonrpc : "2.0",
+            method : "Addons.ExecuteAddon",
+            id : 1,
+            params: {
+                addonid:"plugin.image.500px",
+                params:"?mode=feature&feature=editors&category=Uncategorized"
+            }
+        };
+        console.log("Kodi 500px addon: " + JSON.stringify(data));
+        webSocketService.socket.send(JSON.stringify(data));
+     //   $scope.kodiGetPlaylists();
+        $scope.kodiPlay(2);
+
     }
     $scope.kodiBack = function() {
         console.log("Kodi back");
