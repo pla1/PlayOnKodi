@@ -198,6 +198,14 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
                     }
                 }
             }
+            if (methodName == "Playlist.OnAdd") {
+                var position = jsonObject.params.data.position;
+                console.log("******** Playlist.OnAdd position: " + position);
+                if (position == 0) {
+                  $scope.kodiPlay(0);
+                }
+            }
+
             $scope.$apply();
         };
 
@@ -246,136 +254,38 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
 
     $scope.kodiAddToPlaylist = function(item) {
-        console.log("kodiAddToPlaylist" + JSON.stringify(item));
-        var data = {
-            jsonrpc : "2.0",
-            method : "Playlist.Add",
-            id : 1,
-            params : {
-                playlistid : 0,
-                item : {
-                    file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + item.id.videoId
-                }
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
-        console.log(data);
-        item.kodiStatus = "addedToQueue";
-        $scope.kodiPlayIfIdle();
+      item.kodiStatus = "addedToQueue";
+      kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + item.id.videoId }});
     }
     $scope.kodiClearPlaylist = function() {
-        console.log("kodiClearPlaylist");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Playlist.Clear",
-            id : 1,
-            params : {
-                playlistid : 0,
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Playlist.Clear",{ playlistid : 0 });
     }
     $scope.kodiGetActivePlayers = function() {
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.GetActivePlayers",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
-    }
-
-    //TODO HANDLE IN THE WEBSOCKET ENVIRONMENT
-    $scope.kodiPlayIfIdle = function() {
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.GetActivePlayers",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
-        console.log("Play if idle " + JSON.stringify(data));
-        $scope.kodiPlay();
+      kodiSend("Player.GetActivePlayers");
     }
 
     $scope.kodiPlay = function() {
-        console.log("Kodi play");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.Open",
-            id : 1,
-            params : {
-                item : {
-                    playlistid : 0
-                }
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Player.Open",{ item : { playlistid : 0 }});
     }
     $scope.kodiPlay = function(playlistid) {
-        console.log("Kodi play playlistid: "  + playlistid);
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.Open",
-            id : 1,
-            params : {
-                item : {
-                    playlistid : playlistid
-                }
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Player.Open",{ item : { playlistid : playlistid }});
     }
     $scope.kodiGetItemAll = function() {
-        for (i =0;i<3;i++) {
-            var data = {
-                jsonrpc: "2.0",
-                method: "Player.GetItem",
-                id: 1,
-                params : {
-                    playerid : i,
-                    properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart", "streamdetails"],
-                }
-            }
-            webSocketService.socket.send(JSON.stringify(data));
-        }
+      for (i =0;i<3;i++) {
+        kodiSend("Player.GetItem",{ playerid : i, properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart", "streamdetails"]});
+      }
     }
 
     $scope.kodiVolume = function() {
-        console.log("Kodi volume: " + $scope.volumeObject.level);
-        var data = {
-            jsonrpc : "2.0",
-            method : "Application.SetVolume",
-            id : 1,
-            params : {
-                volume : parseInt($scope.volumeObject.level)
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Application.SetVolume",{ volume : parseInt($scope.volumeObject.level) });
     }
 
     $scope.kodiGetVolume = function() {
-        console.log("Kodi get volume");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Application.GetProperties",
-            id : 1,
-            params : {
-                properties : [ 'volume' ]
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Application.GetProperties",{ properties : [ 'volume' ] });
     }
 
     $scope.kodiPlayPause = function(playerId) {
-        console.log("Kodi play / pause toggle");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.PlayPause",
-            id : 1,
-            params : {
-                playerid : playerId
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Player.PlayPause",{ playerid : playerId });
     }
     $scope.kodiPlayPauseAll = function() {
         console.log("Kodi play / pause all players");
@@ -385,17 +295,9 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
 
     $scope.kodiStop = function(playerId) {
-        console.log("Kodi stop playerid: " + playerId);
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.Stop",
-            id : 1,
-            params : {
-                playerid : playerId
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Player.Stop",{ playerid : playerId });
     }
+
     $scope.kodiStopAll = function() {
         console.log("Kodi stop all players");
         for (i = 0; i < 3;i++) {
@@ -404,34 +306,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
 
     $scope.kodiMusicParty = function() {
-        console.log("Kodi music party");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.Open",
-            id : 1,
-            params : {
-                item : {
-                    partymode : "music"
-                }
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
-        setTimeout($scope.kodiHome, 4000);
-        setTimeout($scope.kodiBack, 5000);
+      kodiSend("Player.Open",{ item : { partymode : "music" }});
+      setTimeout($scope.kodiHome, 4000);
+      setTimeout($scope.kodiBack, 5000);
     }
 
     $scope.kodiPlayNext = function(playerId) {
-        console.log("Kodi play next");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Player.Goto",
-            id : 1,
-            params : {
-                playerid : playerId,
-                to : "next"
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Player.Goto",{ playerid : playerId, to : "next" });
     }
 
     $scope.kodiPlayNextAll = function() {
@@ -441,26 +322,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
     }
 
     $scope.kodiClearPlaylist = function(playListId) {
-        console.log("Kodi play next");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Playlist.Clear",
-            id : 1,
-            params : {
-                playlistid : playListId
-
-            }
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Playlist.Clear",{playlistid : playListId});
     }
     $scope.kodiGetPlaylists = function() {
-        console.log("Kodi get playlists");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Playlist.GetPlaylists",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Playlist.GetPlaylists");
     }
 
     $scope.kodiClearPlaylistAll = function() {
@@ -470,62 +335,32 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', func
         }
     }
 
-    $scope.kodiMute = function() {
-        console.log("Kodi mute");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Application.SetMute",
-            id : 1,
-            params : {
-                mute : "toggle"
-            }
-        };
-        console.log("Websocket sending: " + JSON.stringify(data));
-        webSocketService.socket.send(JSON.stringify(data));
-    }
 
     $scope.kodiShutdown = function() {
-        console.log("Kodi shutdown");
-        var data = {
-            jsonrpc : "2.0",
-            method : "System.Shutdown",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+        kodiSend("System.Shutdown");
     }
     $scope.kodi500px = function() {
-        var data = {
-            jsonrpc : "2.0",
-            method : "Addons.ExecuteAddon",
-            id : 1,
-            params: {
-                addonid:"plugin.image.500px",
-                params:"?mode=feature&feature=editors&category=Uncategorized"
-            }
-        };
-        console.log("Kodi 500px addon: " + JSON.stringify(data));
-        webSocketService.socket.send(JSON.stringify(data));
-     //   $scope.kodiGetPlaylists();
-        $scope.kodiPlay(2);
-
+      kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature=editors&category=Uncategorized" });
     }
     $scope.kodiBack = function() {
-        console.log("Kodi back");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Input.Back",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Input.Back");
     }
     $scope.kodiHome = function() {
-        console.log("Kodi home");
-        var data = {
-            jsonrpc : "2.0",
-            method : "Input.Home",
-            id : 1
-        };
-        webSocketService.socket.send(JSON.stringify(data));
+      kodiSend("Input.Home");
+    }
+    $scope.kodiMute = function() {
+      kodiSend("Application.SetMute", {mute:'toggle'});
+    }
+
+    function kodiSend(method, params) {
+      var data = {
+        jsonrpc : "2.0",
+        method : method,
+        id : 1,
+        params : params
+      };
+      console.log("kodiSend: " + JSON.stringify(data) );
+      webSocketService.socket.send(JSON.stringify(data));
     }
 
     $scope.saveSettings = function() {
