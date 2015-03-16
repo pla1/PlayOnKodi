@@ -1,0 +1,8 @@
+<application>
+  <services>
+    <service id="oa-1.PlayOnKodi">
+      <description>YouTube</description>
+    </service>
+  </services>
+</application>
+

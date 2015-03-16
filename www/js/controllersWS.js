@@ -272,12 +272,26 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         });
     }
     $scope.authYouTube = function() {
+
+        console.log("************ window.onload *********** ")
+        var UI = new UbuntuUI();
+        UI.init();
+        console.log("UI: " + JSON.stringify(UI));
+      //  UI.pagestack.push('home');
+        console.log("EXTERNAL: " + JSON.stringify(external));
+        var api = external.getUnityObject('1.0');
+        console.log("API: " + JSON.stringify(api));
+        var oa = api.OnlineAccounts;
+        console.log("OA: " + JSON.stringify(oa));
+
+
         var url = "https://accounts.google.com/o/oauth2/auth";
         var httpConfig = {
             method : "GET",
             params : {
                 client_id : CONSTANTS.YouTube_CLIENT_ID,
-                redirect_uri:"urn:ietf:wg:oauth:2.0:oob",
+                //     redirect_uri:"urn:ietf:wg:oauth:2.0:oob",
+                redirect_uri:"http://localhost",
                 scope: "https://gdata.youtube.com",
                 key : CONSTANTS.YouTube_API_KEY,
                 response_type: "code",
@@ -288,7 +302,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         $http.get(url, httpConfig).success(function(data) {
             console.log("YouTube Auth response");
             var youtubeResponseElement = document.getElementById("youtubeResponse");
-           // youtubeResponseElement.innerHTML =data.split('"//').join('"https://');
+            // youtubeResponseElement.innerHTML =data.split('"//').join('"https://');
             console.log(JSON.stringify(data));
             data = data.split('"//').join('"https://');
             data = data.split('url(//').join('url(https://')
@@ -296,7 +310,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             myWindow.document.write(data);
             myWindow.addEventListener("load", function() {
                 console.log("**** WINDOW LOADED ****");
-             }, false);
+            }, false);
         });
 
     }
@@ -577,4 +591,17 @@ function getActiveDevice() {
         return devices[0];
     }
     return null;
+}
+
+window.onload = function () {
+    console.log("************ window.onload *********** ")
+    var UI = new UbuntuUI();
+    UI.init();
+    console.log("UI: " + JSON.stringify(UI));
+  //  UI.pagestack.push('home');
+    console.log("EXTERNAL: " + JSON.stringify(external));
+    var api = external.getUnityObject('1.0');
+    console.log("API: " + JSON.stringify(api));
+    var oa = api.OnlineAccounts;
+    console.log("OA: " + JSON.stringify(oa));
 }
