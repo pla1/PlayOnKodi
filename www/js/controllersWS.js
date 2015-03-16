@@ -1,7 +1,11 @@
 var pokApp = angular
 .module('pokModule', [])
 .constant("CONSTANTS", {
-              getAllPlaylistItems:80
+              getAllPlaylistItems:80,
+              YouTube_API_KEY:"AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y",
+              YouTube_REDIRECT_URI:"urn:ietf:wg:oauth:2.0:oob",
+              YouTube_CLIENT_SECRET:"VTnAl8NEs9cePL9Yupi1VgE0",
+              YouTube_CLIENT_ID:"856913298158-9gganedb2g4enp5dbf73mnfem2agea8a.apps.googleusercontent.com"
           }
           );
 
@@ -84,6 +88,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.devices = JSON.parse(localStorage.getItem("devices"));
     $scope.notOnQueue = "notOnQueue";
     $scope.muteButtonText="Mute";
+    $scope.playing = false;
     $scope.volumeObject = {
         level : 50
     };
@@ -119,7 +124,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                     kodiSend("Playlist.GetItems",{playlistid:jsonObject.result[i].playlistid},CONSTANTS.getAllPlaylistItems + jsonObject.result[i].playlistid + 1);
                 }
             }
-            
+            if (methodName == "Player.OnStop") {
+                $scope.playing = false;
+            }
+
             if (methodName == "Application.OnVolumeChanged") {
                 $scope.volumeObject.level = jsonObject.params.data.volume.toFixed(0);
                 if (jsonObject.params.data.muted) {
@@ -130,6 +138,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 $scope.messageLabel = "Volume: " + $scope.volumeObject.level + " muted: " + jsonObject.params.data.muted;
             }
             if (methodName == "Player.OnPlay") {
+                $scope.playing = true;
                 var type = jsonObject.params.data.item.type;
                 if (type == "movie") {
                     $scope.backgroundImageUrl="";
@@ -213,9 +222,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             if (methodName == "Playlist.OnAdd") {
                 var position = jsonObject.params.data.position;
                 console.log("******** Playlist.OnAdd position: " + position);
-                if (position == 0) {
-               //     $scope.kodiPlay(0);
-                }
             }
             
             $scope.$apply();
@@ -239,6 +245,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             $scope.$apply();
         };
     }
+
     $scope.searchYouTube = function() {
         console.log('Looking up: ' + $scope.searchField + " max results:" + $scope.maxResults);
         document.getElementById("searchFieldId").blur();
@@ -248,7 +255,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             params : {
                 part : "snippet",
                 type : "video",
-                key : "AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y",
+                key : CONSTANTS.YouTube_API_KEY,
                 q : $scope.searchField,
                 maxResults : $scope.maxResults,
                 safeSearch : $scope.ytSafeSearch,
@@ -264,10 +271,73 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             }
         });
     }
-    
+    $scope.authYouTube = function() {
+        var url = "https://accounts.google.com/o/oauth2/auth";
+        var httpConfig = {
+            method : "GET",
+            params : {
+                client_id : CONSTANTS.YouTube_CLIENT_ID,
+                redirect_uri:"urn:ietf:wg:oauth:2.0:oob",
+                scope: "https://gdata.youtube.com",
+                key : CONSTANTS.YouTube_API_KEY,
+                response_type: "code",
+                access_type : "offline"
+            }
+        }
+        console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
+        $http.get(url, httpConfig).success(function(data) {
+            console.log("YouTube Auth response");
+            var youtubeResponseElement = document.getElementById("youtubeResponse");
+           // youtubeResponseElement.innerHTML =data.split('"//').join('"https://');
+            console.log(JSON.stringify(data));
+            data = data.split('"//').join('"https://');
+            data = data.split('url(//').join('url(https://')
+            var myWindow = window.open("", "_self");
+            myWindow.document.write(data);
+            myWindow.addEventListener("load", function() {
+                console.log("**** WINDOW LOADED ****");
+             }, false);
+        });
+
+    }
+
+    $scope.listSubscriptionsYouTube = function() {
+        console.log('List subscriptions YouTube.');
+
+
+
+
+
+        var url = "https://www.googleapis.com/youtube/v3/subscriptions";
+        var httpConfig = {
+            method : "GET",
+            params : {
+                part : "snippet",
+                mine : true,
+                key : CONSTANTS.YouTube_API_KEY,
+                maxResults : $scope.maxResults,
+                order : "relevance"
+            }
+        }
+        console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
+        $http.get(url, httpConfig).success(function(data) {
+            $scope.items = data.items;
+            for (var i = 0; i < $scope.items.length; i++) {
+                $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
+                $scope.items[i].kodiStatus = $scope.notOnQueue;
+            }
+        });
+    }
+
     $scope.kodiAddToPlaylist = function(item) {
         item.kodiStatus = "addedToQueue";
+        if (!$scope.playing) {
+            kodiSend("Playlist.Clear",{ playlistid : 0 });
+        }
         kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + item.id.videoId }});
+        if (!$scope.playing) {
+            kodiSend("Player.Open",{ item : { playlistid : 0 }});
+        }
     }
     $scope.kodiClearPlaylist = function() {
         kodiSend("Playlist.Clear",{ playlistid : 0 });

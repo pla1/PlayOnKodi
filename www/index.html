@@ -27,7 +27,10 @@
       <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
     </div>
 
-    <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
+    <button ng-click="authYouTube()" id="authorize-button">YouTube Authorization</button><br>
+    <div id="youtubeResponse"></div>
+
+<div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
       <div class="imageContainer">
         <img ng-src="{{item.snippet.thumbnails.default.url}}">
       </div>
