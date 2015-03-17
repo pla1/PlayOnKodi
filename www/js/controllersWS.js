@@ -273,16 +273,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     }
     $scope.authYouTube = function() {
 
-        console.log("************ window.onload *********** ")
-        var UI = new UbuntuUI();
-        UI.init();
-        console.log("UI: " + JSON.stringify(UI));
-      //  UI.pagestack.push('home');
-        console.log("EXTERNAL: " + JSON.stringify(external));
-        var api = external.getUnityObject('1.0');
-        console.log("API: " + JSON.stringify(api));
-        var oa = api.OnlineAccounts;
-        console.log("OA: " + JSON.stringify(oa));
+        console.log("************ AUTHORIZATION OAUTH DANCE *********** ")
 
 
         var url = "https://accounts.google.com/o/oauth2/auth";
@@ -593,15 +584,3 @@ function getActiveDevice() {
     return null;
 }
 
-window.onload = function () {
-    console.log("************ window.onload *********** ")
-    var UI = new UbuntuUI();
-    UI.init();
-    console.log("UI: " + JSON.stringify(UI));
-  //  UI.pagestack.push('home');
-    console.log("EXTERNAL: " + JSON.stringify(external));
-    var api = external.getUnityObject('1.0');
-    console.log("API: " + JSON.stringify(api));
-    var oa = api.OnlineAccounts;
-    console.log("OA: " + JSON.stringify(oa));
-}
