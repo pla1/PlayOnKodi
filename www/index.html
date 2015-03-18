@@ -7,18 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 <link rel="stylesheet" href="css/app.css" type="text/css" />
 
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/fast-buttons.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/core.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/buttons.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/option-selector.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/dialogs.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/page.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/pagestacks.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/popovers.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/list.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tab.js"></script>
-    <script src="/usr/share/ubuntu-html5-ui-toolkit/0.1/ambiance/js/tabs.js"></script>
-
 
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
@@ -26,32 +14,6 @@
 <script src="js/controllersWS.js"></script>
 </head>
 <body ng-style="backgroundImageUrl != '' && {'background-image':'url('+backgroundImageUrl +')'}">
-
-
-
-
-
-
-    <div data-role="mainview">
-      <header data-role="header">
-      </header>
-
-      <div data-role="content">
-        <div data-role="pagestack">
-          <div data-role="page" id="home" data-title="Configured Online Accounts">
-</div></div></div></div>
-
-
-
-
-
-
-
-
-
-
-
-
 
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
   <div class="header">
@@ -69,7 +31,11 @@
     </div>
 
     <button ng-click="authYouTube()" id="authorize-button">YouTube Authorization</button><br>
-    <div id="youtubeResponse"></div>
+    <div id="youtubeResponse" ng-show="googleUserCode">
+      <p>Copy this code to your clipboard or write it down, click on the link below, enter the code, authorize this app, close this app, and re-open this app.</p>
+      <p>{{googleUserCode}}</p>
+      <p><a href="http://www.google.com/device">Google Device Code Link</a></p>
+    </div>
 
 <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
       <div class="imageContainer">

@@ -20,17 +20,19 @@ window.onload = function () {
         toolbar = UI.toolbar("footer1");
     }, false);
 
-
+/*
     var UI = new UbuntuUI();
     UI.init();
-    console.log("UI: %o", UI);
+    console.log(UI + "The ui object %o", UI);
   //  UI.pagestack.push('home');
     console.log("EXTERNAL: " + JSON.stringify(external));
     var api = external.getUnityObject('1.0');
     console.log("API: " + JSON.stringify(api));
     var oa = api.OnlineAccounts;
     console.log("OA: " + JSON.stringify(oa));
-
+    var accountsList = UI.list('#accounts');
+    console.log("ACCOUNTS LIST: "  + JSON.stringify(accountsList));
+*/
 
 
 };

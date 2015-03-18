@@ -77,6 +77,9 @@ pokApp.directive("loadingIndicator", function() {
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CONSTANTS', function($scope, $http, webSocketService, CONSTANTS) {
     //  localStorage.removeItem("devices");
     var JSON_ID = 1;
+    $scope.googleUserCode="";
+    $scope.googleDeviceCode="";
+    $scope.googleAccessToken="";
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -276,33 +279,50 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         console.log("************ AUTHORIZATION OAUTH DANCE *********** ")
 
 
-        var url = "https://accounts.google.com/o/oauth2/auth";
+        var url = "https://accounts.google.com/o/oauth2/device/code?client_id=" + CONSTANTS.YouTube_CLIENT_ID + "&scope=https://www.googleapis.com/auth/youtube";
         var httpConfig = {
-            method : "GET",
-            params : {
-                client_id : CONSTANTS.YouTube_CLIENT_ID,
-                //     redirect_uri:"urn:ietf:wg:oauth:2.0:oob",
-                redirect_uri:"http://localhost",
-                scope: "https://gdata.youtube.com",
-                key : CONSTANTS.YouTube_API_KEY,
-                response_type: "code",
-                access_type : "offline"
-            }
+            method : "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         }
         console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
-        $http.get(url, httpConfig).success(function(data) {
+        $http.post(url, httpConfig).success(function(data) {
             console.log("YouTube Auth response");
             var youtubeResponseElement = document.getElementById("youtubeResponse");
-            // youtubeResponseElement.innerHTML =data.split('"//').join('"https://');
             console.log(JSON.stringify(data));
-            data = data.split('"//').join('"https://');
-            data = data.split('url(//').join('url(https://')
-            var myWindow = window.open("", "_self");
-            myWindow.document.write(data);
-            myWindow.addEventListener("load", function() {
-                console.log("**** WINDOW LOADED ****");
-            }, false);
+            storageSet("googleDeviceResponseData", data);
+            $scope.googleUserCode = data.user_code;
+            $scope.googleDeviceCode = data.device_code;
+            setInterval($scope.pollGoogleAuthServer, data.interval * 1000);
         });
+
+    }
+    $scope.pollGoogleAuthServer = function() {
+        console.log("************ POLL GOOGLE AUTHORIZATION SERVER *********** ")
+
+        var url = "https://accounts.google.com/o/oauth2/token";
+
+        $http({
+                  method: 'POST',
+                  url: url,
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                  transformRequest: function(obj) {
+                      var str = [];
+                      for(var p in obj)
+                          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                      return str.join("&");
+                  },
+                  data: {grant_type: "http://oauth.net/grant_type/device/1.0", client_id: CONSTANTS.YouTube_CLIENT_ID, client_secret:CONSTANTS.YouTube_CLIENT_SECRET, code:$scope.googleDeviceCode}
+              }).success(function () {
+                  console.log("Google Auth Server Poll Response");
+                  console.log(JSON.stringify(data));
+                  storageSet("googleAccessTokenData", data);
+                  $scope.googleAccessToken = data.access_token;
+              });
+
+
+
+
+
 
     }
 
