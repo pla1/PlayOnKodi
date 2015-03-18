@@ -77,9 +77,9 @@ pokApp.directive("loadingIndicator", function() {
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CONSTANTS', function($scope, $http, webSocketService, CONSTANTS) {
     //  localStorage.removeItem("devices");
     var JSON_ID = 1;
-    $scope.googleUserCode="";
-    $scope.googleDeviceCode="";
-    $scope.googleAccessToken="";
+    $scope.googleUserCode=storageGet("googleUserCode", "");
+    $scope.googleDeviceCode=storageGet("googleDeviceCode", "");
+    $scope.googleAccessToken=storageGet("googleAccessToken", "");
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -291,12 +291,14 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             console.log(JSON.stringify(data));
             storageSet("googleDeviceResponseData", data);
             $scope.googleUserCode = data.user_code;
+            storageSet("googleUserCode", data.user_code);
             $scope.googleDeviceCode = data.device_code;
-            setInterval($scope.pollGoogleAuthServer, data.interval * 1000);
+            storageSet("googleDeviceCode", data.device_code);
+            var pollGoogleAuthServerInterval = setInterval(function() {$scope.pollGoogleAuthServer(pollGoogleAuthServerInterval)}, data.interval * 1000);
         });
 
     }
-    $scope.pollGoogleAuthServer = function() {
+    $scope.pollGoogleAuthServer = function(pollGoogleAuthServerInterval) {
         console.log("************ POLL GOOGLE AUTHORIZATION SERVER *********** ")
 
         var url = "https://accounts.google.com/o/oauth2/token";
@@ -312,11 +314,16 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                       return str.join("&");
                   },
                   data: {grant_type: "http://oauth.net/grant_type/device/1.0", client_id: CONSTANTS.YouTube_CLIENT_ID, client_secret:CONSTANTS.YouTube_CLIENT_SECRET, code:$scope.googleDeviceCode}
-              }).success(function () {
+              }).success(function (data) {
                   console.log("Google Auth Server Poll Response");
                   console.log(JSON.stringify(data));
-                  storageSet("googleAccessTokenData", data);
-                  $scope.googleAccessToken = data.access_token;
+                  if (data.hasOwnProperty("access_token")) {
+                      storageSet("googleAccessToken", data.access_token);
+                      $scope.googleAccessToken = data.access_token;
+                      clearInterval(pollGoogleAuthServerInterval);
+                      var youtubeResponseElement = document.getElementById("youtubeResponse");
+                      youtubeResponseElement.innerHTML = "<p>App authorized successfully to your YouTube account.</p>";
+                  }
               });
 
 
@@ -325,6 +332,49 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
 
     }
+
+
+
+
+
+    $scope.homePageActivitiesYouTube = function() {
+        var url = "https://www.googleapis.com/youtube/v3/activities";
+
+        var httpConfig = {
+            method : "GET",
+            headers: {'Authorization': 'Bearer '+$scope.googleAccessToken },
+            params : {
+                part : "snippet",
+                type : "video",
+                home : true,
+                key : CONSTANTS.YouTube_API_KEY,
+                maxResults : $scope.maxResults,
+                safeSearch : $scope.ytSafeSearch
+            }
+        }
+        console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
+        $http.get(url, httpConfig).success(function(data) {
+            console.log(JSON.stringify(data));
+            $scope.items = data.items;
+            for (var i = 0; i < $scope.items.length; i++) {
+                $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
+                $scope.items[i].kodiStatus = $scope.notOnQueue;
+            }
+        });
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     $scope.listSubscriptionsYouTube = function() {
         console.log('List subscriptions YouTube.');
