@@ -344,7 +344,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             method : "GET",
             headers: {'Authorization': 'Bearer '+$scope.googleAccessToken },
             params : {
-                part : "snippet",
+                part : "snippet,contentDetails",
                 type : "video",
                 home : true,
                 key : CONSTANTS.YouTube_API_KEY,
@@ -430,15 +430,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     $scope.kodiAddToPlaylist = function(item) {
         item.kodiStatus = "addedToQueue";
-      //  console.log("kodiAddToPlaylist " + JSON.stringify(item));
+        console.log("kodiAddToPlaylist " + JSON.stringify(item));
         if (!$scope.playing) {
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
         var videoId = "";
-        if (item.id.hasOwnProperty("videoId")) {
-            videoId = item.id.videoId;
+        if (item.hasOwnProperty("contentDetails")) {
+            videoId = item.contentDetails.upload.videoId;
         } else {
-            videoId = item.id;
+            videoId = item.id.videoId;
         }
         console.log("VIDEO ID: ************************************ " + videoId);
         kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + videoId }});
