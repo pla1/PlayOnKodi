@@ -366,6 +366,34 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     }
 
 
+    $scope.mostPopularYouTube = function() {
+        var url = "https://www.googleapis.com/youtube/v3/videos";
+
+        var httpConfig = {
+            method : "GET",
+            headers: {'Authorization': 'Bearer '+$scope.googleAccessToken },
+            params : {
+                part : "snippet",
+                chart : "mostPopular",
+                key : CONSTANTS.YouTube_API_KEY,
+                maxResults : $scope.maxResults,
+                safeSearch : $scope.ytSafeSearch
+            }
+        }
+        console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
+        $http.get(url, httpConfig).success(function(data) {
+            console.log(JSON.stringify(data));
+            $scope.items = data.items;
+            for (var i = 0; i < $scope.items.length; i++) {
+                $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
+                $scope.items[i].kodiStatus = $scope.notOnQueue;
+            }
+        });
+
+
+    }
+
+
 
 
 
@@ -378,10 +406,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     $scope.listSubscriptionsYouTube = function() {
         console.log('List subscriptions YouTube.');
-
-
-
-
 
         var url = "https://www.googleapis.com/youtube/v3/subscriptions";
         var httpConfig = {
@@ -406,10 +430,18 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     $scope.kodiAddToPlaylist = function(item) {
         item.kodiStatus = "addedToQueue";
+      //  console.log("kodiAddToPlaylist " + JSON.stringify(item));
         if (!$scope.playing) {
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
-        kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + item.id.videoId }});
+        var videoId = "";
+        if (item.id.hasOwnProperty("videoId")) {
+            videoId = item.id.videoId;
+        } else {
+            videoId = item.id;
+        }
+        console.log("VIDEO ID: ************************************ " + videoId);
+        kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + videoId }});
         if (!$scope.playing) {
             kodiSend("Player.Open",{ item : { playlistid : 0 }});
         }

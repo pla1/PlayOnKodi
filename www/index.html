@@ -29,6 +29,7 @@
     <div class="searchFieldContainer">
       <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
       <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
+      <button ng-click="mostPopularYouTube()">YouTube Popular</button>
    </div>
 
     <button ng-click="authYouTube()" id="authorize-button" ng-show="!googleAccessToken">YouTube Authorization</button><br>
@@ -71,21 +72,23 @@
   <div ng-show="showSettings">
     <h2>Kodi Settings</h2>
     <div class="settingsMessage">{{settingsMessage}}</div>
+    <form name="deviceForm" ng-submit="saveNewDevice()">
     <table id="deviceForm">
       <tr>
         <th>Host name</th>
-        <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address"></td>
+        <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address" required></td>
       </tr>
       <tr>
         <th>WebSocket port</th>
-        <td><input type="number" ng-model="devicePort" placeholder="WebSocket port usually 9090"></td>
+        <td><input type="number" ng-model="devicePort" placeholder="WebSocket port usually 9090" required min="80" max="9999"></td>
       </tr>
       <tr>
         <th>Description</th>
-        <td><input type="text" ng-model="deviceDescription" placeholder="Description"></td>
+        <td><input type="text" ng-model="deviceDescription" placeholder="Description" required></td>
       </tr>
     </table>
-    <button ng-click="saveNewDevice()">Add device</button>
+    <button type="submit">Add device</button>
+    </form>
     <p>{{devices.length}} devices</p>
     <table ng-show="devices">
       <tr>
