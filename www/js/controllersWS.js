@@ -435,10 +435,18 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
         var videoId = "";
+
         if (item.hasOwnProperty("contentDetails")) {
+            if (item.contentDetails.hasOwnProperty("playlistItem")) {
+                videoId = item.contentDetails.playlistItem.resourceId.videoId;
+            }
             if (item.contentDetails.hasOwnProperty("recommendation")) {
-                if (item.contentDetails.recommendation.hasOwnProperty("seedResourceId")) {
-                    videoId = item.contentDetails.recommendation.seedResourceId.videoId;
+                if (item.contentDetails.recommendation.hasOwnProperty("playlistItem")) {
+                    videoId = item.contentDetails.recommendation.playlistItem.resourceId.videoId;
+                }
+
+                if (item.contentDetails.recommendation.hasOwnProperty("resourceId")) {
+                    videoId = item.contentDetails.recommendation.resourceId.videoId;
                 }
             }
             if (item.contentDetails.hasOwnProperty("upload")) {
@@ -447,6 +455,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         } else {
             videoId = item.id.videoId;
         }
+        if (item.kind== "youtube#video") {
+            videoId = item.id;
+        }
+
         console.log("VIDEO ID: ************************************ " + videoId);
         kodiSend("Playlist.Add",{ playlistid : 0, item : { file : "plugin://plugin.video.youtube/?action=play_video&videoid=" + videoId }});
         if (!$scope.playing) {
