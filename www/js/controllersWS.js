@@ -436,7 +436,14 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
         var videoId = "";
         if (item.hasOwnProperty("contentDetails")) {
-            videoId = item.contentDetails.upload.videoId;
+            if (item.contentDetails.hasOwnProperty("recommendation")) {
+                if (item.contentDetails.recommendation.hasOwnProperty("seedResourceId")) {
+                    videoId = item.contentDetails.recommendation.seedResourceId.videoId;
+                }
+            }
+            if (item.contentDetails.hasOwnProperty("upload")) {
+                videoId = item.contentDetails.upload.videoId;
+            }
         } else {
             videoId = item.id.videoId;
         }
@@ -568,6 +575,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         storageSet("transparentButtons", $scope.transparentButtons);
         toggleTransparentButtons("yes" == $scope.transparentButtons);
     }
+    $scope.deleteYouTubeAuthorization = function() {
+        $scope.googleAccessToken = "";
+        storageSet("googleAccessToken", "");
+        $scope.googleUserCode="";
+        storageSet("googleUserCode", "");
+        $scope.googleDeviceCode="";
+        storageSet("googleDeviceCode", "");
+    }
+
     $scope.deselectOtherDevices = function(device) {
         console.log("Deselecting " + $scope.devices.length + " devices.");
         for (i = 0; i < $scope.devices.length; i++) {
