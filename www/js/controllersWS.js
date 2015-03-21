@@ -25,7 +25,7 @@ pokApp.factory('webSocketService', function($rootScope) {
     });
     Chat.initialize = function() {
         console.log("webSocketService Chat.initialize");
-        var device = getActiveDevice();
+        var device = getActiveKodiDevice();
         if (device == null) {
             console.log("Device is null. Exiting Chat.initialize function.");
             return;
@@ -77,6 +77,7 @@ pokApp.directive("loadingIndicator", function() {
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CONSTANTS', function($scope, $http, webSocketService, CONSTANTS) {
     //  localStorage.removeItem("devices");
     var JSON_ID = 1;
+    $scope.deviceType = "kodi";
     $scope.googleUserCode=storageGet("googleUserCode", "");
     $scope.googleDeviceCode=storageGet("googleDeviceCode", "");
     $scope.googleAccessToken=storageGet("googleAccessToken", "");
@@ -95,6 +96,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.volumeObject = {
         level : 50
     };
+
     $scope.userAgent = navigator.userAgent;
     console.log("Devices: " + JSON.stringify($scope.devices));
     if (typeof $scope.devices == "undefined" || isBlank($scope.devices)) {
@@ -247,6 +249,26 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             console.log($scope.messageLabel);
             $scope.$apply();
         };
+    }
+    $scope.hdhomerunChannelList = function() {
+        var device = $scope.getHdhomerunDevice();
+        var url = "http://"+device.name+":"+device.port+"/lineup.json";
+        console.log("hdhomerunChannelList URL: " + url);
+
+        $http.get(url).success(function(data) {
+            $scope.items = data;
+            for (var i = 0; i < $scope.items.length; i++) {
+                $scope.items[i].age = "";
+                $scope.items[i].kodiStatus = "";
+                $scope.items[i].snippet={};
+                //$scope.items[i].snippet.thumbnails.default.url="";
+                $scope.items[i].snippet.description=$scope.items[i].GuideNumber+" "+$scope.items[i].GuideName;
+                $scope.items[i].type="hdhomerun";
+                $scope.items[i].url=$scope.items[i].URL;
+                $scope.items[i].kodiStatus = $scope.notOnQueue;
+            }
+        });
+
     }
 
     $scope.searchYouTube = function() {
@@ -429,6 +451,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     }
 
     $scope.kodiAddToPlaylist = function(item) {
+        if (item.type=="hdhomerun") {
+            console.log("HDHomeRun play " + JSON.stringify(item));
+            kodiSend("Player.Open",{ item : { file : item.url }});
+            return;
+        }
+
         item.kodiStatus = "addedToQueue";
         console.log("kodiAddToPlaylist " + JSON.stringify(item));
         if (!$scope.playing) {
@@ -604,16 +632,26 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             }
         }
     }
-    $scope.getActiveDevice = function() {
+
+    $scope.getActiveKodiDevice = function() {
         for (i = 0; i < $scope.devices.length; i++) {
             if ($scope.devices[i].active) {
-                console.log("getActiveDevice: " + JSON.stringify($scope.devices[i]));
+                console.log("getActiveKodiDevice: " + JSON.stringify($scope.devices[i]));
                 return $scope.devices[i];
             }
         }
         if ($scope.devices.length > 0) {
-            console.log("getActiveDevice return the first one since none were active: " + JSON.stringify($scope.devices[0]));
+            console.log("getActiveKodiDevice return the first one since none were active: " + JSON.stringify($scope.devices[0]));
             return $scope.devices[0];
+        }
+        return null;
+    }
+    $scope.getHdhomerunDevice = function() {
+        for (i = 0; i < $scope.devices.length; i++) {
+            if ($scope.devices[i].deviceType=='hdhomerun') {
+                console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
+                return $scope.devices[i];
+            }
         }
         return null;
     }
@@ -658,11 +696,14 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.saveNewDevice = function() {
         var device = {};
         device.id = generateUUID();
-        device.active = true;
         device.name = $scope.deviceName;
         device.port = $scope.devicePort;
         device.description = $scope.deviceDescription;
-        $scope.deselectOtherDevices(device);
+        device.deviceType = $scope.deviceType;
+        if (device.deviceType=='kodi') {
+            device.active = true;
+            $scope.deselectOtherDevices(device);
+        }
         console.log("Devices before saving: " + $scope.devices);
         $scope.devices.push(device);
         localStorage.setItem("devices", JSON.stringify($scope.devices));
@@ -699,16 +740,16 @@ function generateUUID() {
     return uuid;
 };
 
-function getActiveDevice() {
+function getActiveKodiDevice() {
     devices = JSON.parse(localStorage.getItem("devices"));
     for (i = 0; i < devices.length; i++) {
         if (devices[i].active) {
-            console.log("getActiveDevice: " + JSON.stringify(devices[i]));
+            console.log("getActiveKodiDevice: " + JSON.stringify(devices[i]));
             return devices[i];
         }
     }
     if (devices.length > 0) {
-        console.log("getActiveDevice return the first one since none were active: " + JSON.stringify(devices[0]));
+        console.log("getActiveKodiDevice return the first one since none were active: " + JSON.stringify(devices[0]));
         return devices[0];
     }
     return null;

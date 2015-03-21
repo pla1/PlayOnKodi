@@ -30,6 +30,7 @@
       <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
       <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
       <button ng-click="mostPopularYouTube()">YouTube Popular</button>
+      <button ng-click="hdhomerunChannelList()" ng-show="getHdhomerunDevice()">HDHomeRun Channels</button>
    </div>
 
     <button ng-click="authYouTube()" id="authorize-button" ng-show="!googleAccessToken">YouTube Authorization</button><br>
@@ -83,6 +84,13 @@
         <td><input type="number" ng-model="devicePort" placeholder="WebSocket port usually 9090" required min="80" max="9999"></td>
       </tr>
       <tr>
+        <th>Device type</th>
+        <td>
+        <input type="radio" ng-model="deviceType" value="kodi">Kodi
+        <input type="radio" ng-model="deviceType" value="hdhomerun">HDHomeRun
+        </td>
+      </tr>
+      <tr>
         <th>Description</th>
         <td><input type="text" ng-model="deviceDescription" placeholder="Description" required></td>
       </tr>
@@ -98,7 +106,7 @@
         <th>Description</th>
       </tr>
       <tr ng-repeat="device in devices track by $index">
-        <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active"></td>
+        <td><input type="checkbox" ng-change="deviceToggle(device)" ng-model="device.active" ng-show="device.deviceType=='kodi'"></td>
         <td>{{device.name}}</td>
         <td>{{device.description}}</td>
         <td><button ng-click="deleteDevice(device)">Delete</button></td>
