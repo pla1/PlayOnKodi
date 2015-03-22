@@ -5,7 +5,7 @@ HTML5 app for Ubuntu Touch. Use with your Kodi entertainment system.
 * Basic remote control features 
 * Mirrors fanart as a background
 
-**NOTE:** *Some features like the 500px button use keyboard navigation functions and may not work if you are not using the Confluence theme.*
+**NOTE:** *Some features like the 500px button use keyboard navigation functions and may not work if you are not using the [Confluence](http://kodi.wiki/view/Confluence) theme.*
 
 ### Software used in this app:
 * AngularJS - https://angularjs.org/
