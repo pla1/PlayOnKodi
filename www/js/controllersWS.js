@@ -82,6 +82,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.googleDeviceCode=storageGet("googleDeviceCode", "");
     $scope.googleAccessToken=storageGet("googleAccessToken", "");
     $scope.googleRefreshToken=storageGet("googleRefreshToken", "");
+    console.log("REFRESH TOKEN FROM STORAGE: " +$scope.googleRefreshToken);
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -377,13 +378,16 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                   console.log(JSON.stringify(data));
                   if (data.hasOwnProperty("access_token")) {
                       storageSet("googleAccessToken", data.access_token);
-                      storageSet("googleRefreshToken", data.refresh_token);
+                      if (data.hasOwnProperty("refresh_token")) {
+                          storageSet("googleRefreshToken", data.refresh_token);
+                      }
                       $scope.googleAccessToken = data.access_token;
                       $scope.googleRefreshToken = data.refresh_token;
                       var youtubeResponseElement = document.getElementById("youtubeResponse");
                       youtubeResponseElement.innerHTML = "<p>YouTube token refreshed.</p>";
                   }
-              });
+              })
+        .error(function(errorData){console.log("*** ERROR **** " + JSON.stringify(errorData))});
     }
 
 
@@ -412,6 +416,21 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             for (var i = 0; i < $scope.items.length; i++) {
                 $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
                 $scope.items[i].kodiStatus = $scope.notOnQueue;
+            }
+        })
+        .error(function (errorData){
+            console.log("*** ERROR ***: " + JSON.stringify(errorData));
+            if (errorData.hasOwnProperty("error")) {
+                if (errorData.error.errors.length > 0) {
+                    if (errorData.error.errors[0].hasOwnProperty("reason")) {
+                        if (errorData.error.errors[0].reason == "authError") {
+                            if (!isBlank($scope.googleRefreshToken)) {
+                                $scope.refreshTokenYouTube();
+                                //$scope.homePageActivitiesYouTube();
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -574,6 +593,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     
     $scope.kodiMusicParty = function() {
         kodiSend("Player.Open",{ item : { partymode : "music" }});
+        //  setTimeout(kodiSend("Input.Info"),4000);
+        //  $scope.kodi500px();
         setTimeout($scope.kodiHome, 4000);
         setTimeout($scope.kodiBack, 5000);
         //  setTimeout($scope.kodi500px(),6000);
@@ -613,10 +634,18 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.kodiShutdown = function() {
         kodiSend("System.Shutdown");
     }
+    $scope.kodiMultiSend = function(commands) {
+        for (var i = 0; i< commands.length;i++) {
+            kodiSend(commands[i]);
+        }
+    }
+
     $scope.kodi500px = function() {
+        kodiSend("Input.Home");
         kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
+        setTimeout($scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]),5000);
         // kodiSend("Playlist.GetPlaylists",undefined,CONSTANTS.getAllPlaylistItems);
-        kodiSend("GUI.ActivateWindow", {window:"weather"});
+        //    kodiSend("GUI.ActivateWindow", {window:"slideshow"});
 
     }
     $scope.kodiBack = function() {
@@ -702,6 +731,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             $scope.deselectOtherDevices(device);
         }
         $scope.saveDevice(device);
+        window.location.reload();
     }
     $scope.deleteDevice = function(device) {
         console.log("Delete device: " + JSON.stringify(device) + " device quantity: " + $scope.devices.length);
@@ -749,8 +779,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         $scope.devices.push(device);
         localStorage.setItem("devices", JSON.stringify($scope.devices));
         console.log("Devices after saving: " + $scope.devices);
+        if (device.type=='kodi') {
+            window.location.reload();
+        }
     }
-    
     
 } ]);
 
@@ -796,3 +828,6 @@ function getActiveKodiDevice() {
     return null;
 }
 
+function isBlank(str) {
+    return (!str || /^\s*$/.test(str));
+}

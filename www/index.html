@@ -56,11 +56,11 @@
 
   <div ng-show="showRemoteControl" class="remoteControl">
     <button ng-click="kodiNavigation('Home')">Home</button>
+    <button ng-click="kodiNavigation('Back')">Back</button>
     <button ng-click="kodiNavigation('Left')">Left</button>
     <button ng-click="kodiNavigation('Right')">Right</button>
     <button ng-click="kodiNavigation('Up')">Up</button>
     <button ng-click="kodiNavigation('Down')">Down</button>
-    <button ng-click="kodiNavigation('Back')">Back</button>
     <button ng-click="kodiNavigation('ContextMenu')">Context menu</button>
     <button ng-click="kodiNavigation('Select')">Select</button>
     <button ng-click="kodiNavigation('Info')">Info</button>
@@ -75,7 +75,6 @@
     <button ng-click="kodi500px()">500px</button>
     <button ng-click="kodiActivateWindow('weather')">Weather</button>
     <button ng-click="kodiActivateWindow('systeminfo')">System Info</button>
-    <button ng-click="kodiActivateWindow('slideshow')">Slideshow</button>
     <p>&nbsp;</p>
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>
