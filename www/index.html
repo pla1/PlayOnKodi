@@ -73,6 +73,9 @@
     <button ng-click="kodiStopAll()">Stop</button>
     <button ng-click="kodiShutdown()">Shutdown</button>
     <button ng-click="kodi500px()">500px</button>
+    <button ng-click="kodiActivateWindow('weather')">Weather</button>
+    <button ng-click="kodiActivateWindow('systeminfo')">System Info</button>
+    <button ng-click="kodiActivateWindow('slideshow')">Slideshow</button>
     <p>&nbsp;</p>
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>

@@ -576,10 +576,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("Player.Open",{ item : { partymode : "music" }});
         setTimeout($scope.kodiHome, 4000);
         setTimeout($scope.kodiBack, 5000);
-      //  setTimeout($scope.kodi500px(),6000);
+        //  setTimeout($scope.kodi500px(),6000);
     }
     $scope.kodiNavigation = function(navigationAction) {
         kodiSend("Input."+navigationAction, {});
+    }
+    $scope.kodiActivateWindow = function(windowName) {
+        kodiSend("GUI.ActivateWindow", {window:windowName});
     }
 
     $scope.kodiPlayNext = function(playerId) {
@@ -605,14 +608,16 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             $scope.kodiClearPlaylist(i);
         }
     }
-    
+
     
     $scope.kodiShutdown = function() {
         kodiSend("System.Shutdown");
     }
     $scope.kodi500px = function() {
         kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
-        kodiSend("Playlist.GetPlaylists",undefined,CONSTANTS.getAllPlaylistItems);
+        // kodiSend("Playlist.GetPlaylists",undefined,CONSTANTS.getAllPlaylistItems);
+        kodiSend("GUI.ActivateWindow", {window:"weather"});
+
     }
     $scope.kodiBack = function() {
         kodiSend("Input.Back");
