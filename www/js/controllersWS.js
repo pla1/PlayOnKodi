@@ -78,9 +78,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     //  localStorage.removeItem("devices");
     var JSON_ID = 1;
     $scope.deviceType = "kodi";
-    $scope.googleUserCode=storageGet("googleUserCode", "");
+    //$scope.googleUserCode=storageGet("googleUserCode", "");
     $scope.googleDeviceCode=storageGet("googleDeviceCode", "");
     $scope.googleAccessToken=storageGet("googleAccessToken", "");
+    $scope.googleRefreshToken=storageGet("googleRefreshToken", "");
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
     $scope.ytOrder = storageGet("ytOrder", "date");
@@ -89,6 +90,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.fanartAsBackground = storageGet("fanartAsBackground", "yes");
     $scope.transparentButtons = storageGet("transparentButtons", "yes");
     toggleTransparentButtons("yes" == $scope.transparentButtons);
+    $scope.fiveHundredPixFeature = storageGet("fiveHundredPixFeature","editors");
+    $scope.fiveHundredPixCategory = storageGet("fiveHundredPixCategory","Uncategorized");
     $scope.devices = JSON.parse(localStorage.getItem("devices"));
     $scope.notOnQueue = "notOnQueue";
     $scope.muteButtonText="Mute";
@@ -96,7 +99,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.volumeObject = {
         level : 50
     };
-
+    $scope.fiveHundredPixFeatures = [{name:"editors"},{name:"popular"},{name:"upcoming"},{name:"fresh_today"},{name:"fresh_yesterday"},{name:"fresh_week"}];
+    $scope.fiveHundredPixCategories = [{name:"Uncategorized"},{name:"Abstract"},{name:"Animals"},{name:"Black and White"},{name:"Celebrities"},{name:"City and Architecture"},{name:"Commercial"},{name:"Concert"},{name:"Family"},{name:"Fashion"},{name:"Film"},{name:"Fine Art"},{name:"Food"},{name:"Journalism"},{name:"Landscapes"},{name:"Macro"},{name:"Nature"},{name:"Nude"},{name:"People"},{name:"Performing Arts"},{name:"Sport"},{name:"Still Life"},{name:"Street"},{name:"Transportation"},{name:"Travel"},{name:"Underwater"},{name:"Urban Exploration"},{name:"Wedding"}];
     $scope.userAgent = navigator.userAgent;
     console.log("Devices: " + JSON.stringify($scope.devices));
     if (typeof $scope.devices == "undefined" || isBlank($scope.devices)) {
@@ -131,6 +135,10 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             }
             if (methodName == "Player.OnStop") {
                 $scope.playing = false;
+                $scope.backgroundImageUrl="";
+                $scope.album="";
+                $scope.artist="";
+                $scope.title ="";
             }
 
             if (methodName == "Application.OnVolumeChanged") {
@@ -261,7 +269,9 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 $scope.items[i].age = "";
                 $scope.items[i].kodiStatus = "";
                 $scope.items[i].snippet={};
-                //$scope.items[i].snippet.thumbnails.default.url="";
+                $scope.items[i].snippet.thumbnails={};
+                $scope.items[i].snippet.thumbnails.default={};
+                $scope.items[i].snippet.thumbnails.default.url="";
                 $scope.items[i].snippet.description=$scope.items[i].GuideNumber+" "+$scope.items[i].GuideName;
                 $scope.items[i].type="hdhomerun";
                 $scope.items[i].url=$scope.items[i].URL;
@@ -321,10 +331,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     }
     $scope.pollGoogleAuthServer = function(pollGoogleAuthServerInterval) {
-        console.log("************ POLL GOOGLE AUTHORIZATION SERVER *********** ")
-
+        console.log("************ POLL GOOGLE AUTHORIZATION SERVER *********** ");
         var url = "https://accounts.google.com/o/oauth2/token";
-
         $http({
                   method: 'POST',
                   url: url,
@@ -341,18 +349,41 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                   console.log(JSON.stringify(data));
                   if (data.hasOwnProperty("access_token")) {
                       storageSet("googleAccessToken", data.access_token);
+                      storageSet("googleRefreshToken", data.refresh_token);
                       $scope.googleAccessToken = data.access_token;
+                      $scope.googleRefreshToken = data.refresh_token;
                       clearInterval(pollGoogleAuthServerInterval);
                       var youtubeResponseElement = document.getElementById("youtubeResponse");
                       youtubeResponseElement.innerHTML = "<p>App authorized successfully to your YouTube account.</p>";
                   }
               });
-
-
-
-
-
-
+    }
+    $scope.refreshTokenYouTube = function(pollGoogleAuthServerInterval) {
+        console.log("************ REFRESH TOKEN YOUTUBE *********** ");
+        var url = "https://accounts.google.com/o/oauth2/token";
+        $http({
+                  method: 'POST',
+                  url: url,
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                  transformRequest: function(obj) {
+                      var str = [];
+                      for(var p in obj)
+                          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                      return str.join("&");
+                  },
+                  data: {grant_type: "refresh_token", client_id: CONSTANTS.YouTube_CLIENT_ID, client_secret:CONSTANTS.YouTube_CLIENT_SECRET, refresh_token:$scope.googleRefreshToken}
+              }).success(function (data) {
+                  console.log("Google Auth Server Poll Response");
+                  console.log(JSON.stringify(data));
+                  if (data.hasOwnProperty("access_token")) {
+                      storageSet("googleAccessToken", data.access_token);
+                      storageSet("googleRefreshToken", data.refresh_token);
+                      $scope.googleAccessToken = data.access_token;
+                      $scope.googleRefreshToken = data.refresh_token;
+                      var youtubeResponseElement = document.getElementById("youtubeResponse");
+                      youtubeResponseElement.innerHTML = "<p>YouTube token refreshed.</p>";
+                  }
+              });
     }
 
 
@@ -376,7 +407,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
         console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
         $http.get(url, httpConfig).success(function(data) {
-            console.log(JSON.stringify(data));
+            console.log("RESPONSE: " + JSON.stringify(data));
             $scope.items = data.items;
             for (var i = 0; i < $scope.items.length; i++) {
                 $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
@@ -404,7 +435,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
         console.log("URL:" + url + "HTTP Config: " + JSON.stringify(httpConfig));
         $http.get(url, httpConfig).success(function(data) {
-            console.log(JSON.stringify(data));
+            console.log("RESPONSE: " + JSON.stringify(data));
             $scope.items = data.items;
             for (var i = 0; i < $scope.items.length; i++) {
                 $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
@@ -545,9 +576,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("Player.Open",{ item : { partymode : "music" }});
         setTimeout($scope.kodiHome, 4000);
         setTimeout($scope.kodiBack, 5000);
-        setTimeout($scope.kodi500px(),6000);
+      //  setTimeout($scope.kodi500px(),6000);
     }
-    
+    $scope.kodiNavigation = function(navigationAction) {
+        kodiSend("Input."+navigationAction, {});
+    }
+
     $scope.kodiPlayNext = function(playerId) {
         kodiSend("Player.Goto",{ playerid : playerId, to : "next" });
     }
@@ -577,7 +611,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("System.Shutdown");
     }
     $scope.kodi500px = function() {
-        kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature=editors&category=Uncategorized" });
+        kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
         kodiSend("Playlist.GetPlaylists",undefined,CONSTANTS.getAllPlaylistItems);
     }
     $scope.kodiBack = function() {
@@ -613,6 +647,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         storageSet("fanartAsBackground", $scope.fanartAsBackground);
         storageSet("pictureSlideshowAsBackground", $scope.pictureSlideshowAsBackground);
         storageSet("transparentButtons", $scope.transparentButtons);
+        storageSet("fiveHundredPixFeature", $scope.fiveHundredPixFeature);
+        storageSet("fiveHundredPixCategory", $scope.fiveHundredPixCategory);
         toggleTransparentButtons("yes" == $scope.transparentButtons);
     }
     $scope.deleteYouTubeAuthorization = function() {
@@ -648,7 +684,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     }
     $scope.getHdhomerunDevice = function() {
         for (i = 0; i < $scope.devices.length; i++) {
-            if ($scope.devices[i].deviceType=='hdhomerun') {
+            if ($scope.devices[i].type=='hdhomerun') {
                 console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
                 return $scope.devices[i];
             }
@@ -699,8 +735,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         device.name = $scope.deviceName;
         device.port = $scope.devicePort;
         device.description = $scope.deviceDescription;
-        device.deviceType = $scope.deviceType;
-        if (device.deviceType=='kodi') {
+        device.type = $scope.deviceType;
+        if (device.type=='kodi') {
             device.active = true;
             $scope.deselectOtherDevices(device);
         }

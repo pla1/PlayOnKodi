@@ -28,13 +28,13 @@ width:100%;
 font-size:xx-large;
 }
 .header button {
- text-alight:right;
- float:right;
- margin-top:10px;
- margin-bottom:10px;
- margin-left:10px;
- clear:both;
- }
+text-alight:right;
+float:right;
+margin-top:10px;
+margin-bottom:10px;
+margin-left:10px;
+clear:both;
+}
 .listContainer {
 border: 1px solid #DD4814;
 overflow: auto;
@@ -74,4 +74,7 @@ margin-bottom:20px;
 font-size:xx-large;
 background-color:red;
 color:white;
+}
+.hdhomerun {
+font-size:xx-large;
 }
