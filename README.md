@@ -14,6 +14,7 @@ HTML5 app for Ubuntu Touch. Use this app with your Kodi entertainment system.
 
 **TODO**
 * Better handle when to clear playlists.
+* Better handle refreshing YouTube token.
 * Find a better method than using keyboard navigation for starting a 500px slideshow.
 
 Please report bugs and feature requests on the [issues page](https://github.com/pla1/PlayOnKodi/issues).

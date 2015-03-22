@@ -465,17 +465,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     $scope.listSubscriptionsYouTube = function() {
         console.log('List subscriptions YouTube.');
 
@@ -593,11 +582,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     
     $scope.kodiMusicParty = function() {
         kodiSend("Player.Open",{ item : { partymode : "music" }});
-        //  setTimeout(kodiSend("Input.Info"),4000);
-        //  $scope.kodi500px();
         setTimeout($scope.kodiHome, 4000);
         setTimeout($scope.kodiBack, 5000);
-        //  setTimeout($scope.kodi500px(),6000);
     }
     $scope.kodiNavigation = function(navigationAction) {
         kodiSend("Input."+navigationAction, {});
@@ -644,9 +630,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("Input.Home");
         kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
         setTimeout($scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]),5000);
-        // kodiSend("Playlist.GetPlaylists",undefined,CONSTANTS.getAllPlaylistItems);
-        //    kodiSend("GUI.ActivateWindow", {window:"slideshow"});
-
     }
     $scope.kodiBack = function() {
         kodiSend("Input.Back");
