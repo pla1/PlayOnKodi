@@ -42,7 +42,7 @@
 
 <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
       <div class="imageContainer">
-        <img ng-src="{{item.snippet.thumbnails.default.url}}">
+        <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
       </div>
       <div>
         <h3 ng-style="item.type">

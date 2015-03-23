@@ -5,7 +5,8 @@ var pokApp = angular
               YouTube_API_KEY:"AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y",
               YouTube_REDIRECT_URI:"urn:ietf:wg:oauth:2.0:oob",
               YouTube_CLIENT_SECRET:"VTnAl8NEs9cePL9Yupi1VgE0",
-              YouTube_CLIENT_ID:"856913298158-9gganedb2g4enp5dbf73mnfem2agea8a.apps.googleusercontent.com"
+              YouTube_CLIENT_ID:"856913298158-9gganedb2g4enp5dbf73mnfem2agea8a.apps.googleusercontent.com",
+              FeedWrangler_CLIENT_ID:"159b60ce10497bda2185f9056411dcc7"
           }
           );
 
@@ -767,6 +768,48 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
     }
     $scope.podcastSearch = function(searchTerm) {
+        console.log("Podcast search: " + searchTerm);
+        var url = "https://feedwrangler.net/api/v2/podcasts/search";
+        $scope.items=[];
+        var httpConfig = {
+            method : "GET",
+            params : {
+                client_id : CONSTANTS.FeedWranger_CLIENT_ID,
+                search_term : searchTerm
+            }
+        }
+        $http.get(url,httpConfig).success(function(data) {
+            console.log("Podcast search response: " + JSON.stringify(data));
+            var podcasts = data.podcasts;
+            url = "https://feedwrangler.net/api/v2/podcasts/show";
+            for (var i = 0; i<podcasts.length;i++) {
+                httpConfig = {
+                    method : "GET",
+                    params : {
+                        client_id : CONSTANTS.FeedWranger_CLIENT_ID,
+                        podcast_id : podcasts[i].podcast_id
+                    }
+                }
+                $http.get(url,httpConfig).success(function(data) {
+                    console.log(JSON.stringify(data));
+                    for (var j = 0 ; j < data.podcast.recent_episodes.length;j++){
+                        var item = {};
+                        item.snippet={}
+                        item.snippet.title = data.podcast.title;
+                        item.snippet.thumbnails ={};
+                        item.snippet.thumbnails.default={};
+                        item.snippet.thumbnails.default.url=data.podcast.image_url;
+                        item.url=data.podcast.recent_episodes[j].audio_url;
+                        item.snippet.description=data.podcast.recent_episodes[j].title;
+                        item.kodiStatus="notOnQueue";
+                        item.type="podcast";
+                        $scope.items.push(item);
+                    }
+                });
+            }});
+    }
+
+    $scope.podcastSearchItunesVersion = function(searchTerm) {
         console.log("Podcast search: " + searchTerm)
         var url = "https://itunes.apple.com/search?media=podcast&entity=podcast&term="+searchTerm;
         var podcastFeedUrl = "";
@@ -794,19 +837,17 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                     var episodeTitle = itemNode.getElementsByTagName("title")[0].childNodes[0].nodeValue;
                     console.log("EPISODE TITLE: " + episodeTitle);
                     var enclosureElement = itemNode.getElementsByTagName("enclosure")[0];
-                    dumpXml(enclosureElement);
+                    //   dumpXml(enclosureElement);
                     var episodeUrl = enclosureElement.getAttribute("url");
                     var episodeDescriptionElement = itemNode.getElementsByTagNameNS(namespace,"summary")[0];
-                    dumpXml(episodeDescriptionElement);
+                    // dumpXml(episodeDescriptionElement);
                     var episodeDescription = episodeDescriptionElement.childNodes[0].nodeValue;
-                  //  var imageUrlElement = itemNode.getElementsByTagNameNS(namespace,"image")[0];
-                  //  dumpXml(imageUrlElement);
                     var item = {};
                     item.snippet={}
                     item.snippet.title = episodeTitle;
                     item.snippet.thumbnails ={};
                     item.snippet.thumbnails.default={};
-                   // item.snippet.thumbnails.default.url=imageUrlElement.getAttribute("href");
+                    item.snippet.thumbnails.default.url=imageUrl;
                     item.url=episodeUrl;
                     item.snippet.description=episodeDescription;
                     item.kodiStatus="notOnQueue";
@@ -821,7 +862,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         });
 
     }
-    
+
 } ]);
 function dumpXml(element) {
     var xmlString = (new XMLSerializer()).serializeToString(element);
