@@ -27,10 +27,10 @@
 
   <div ng-show="!showSettings && !showRemoteControl">
     <div class="searchFieldContainer">
-      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && searchYouTube()" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
+      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && podcastSearch(searchField)" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
       <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
       <button ng-click="mostPopularYouTube()">YouTube Popular</button>
-      <button ng-click="hdhomerunChannelList()" ng-show="getHdhomerunDevice()">HDHomeRun Channels</button>
+      <button ng-click="hdhomerunChannelList()" ng-show="hdhomerunDevice">HDHomeRun Channels</button>
    </div>
 
     <button ng-click="authYouTube()" id="authorize-button" ng-show="!googleAccessToken">YouTube Authorization</button><br>

@@ -97,6 +97,14 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.notOnQueue = "notOnQueue";
     $scope.muteButtonText="Mute";
     $scope.playing = false;
+    $scope.hdhomerunDevice="";
+    for (i = 0; i < $scope.devices.length; i++) {
+        if ($scope.devices[i].type=='hdhomerun') {
+            console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
+            $scope.hdhomerunDevice = $scope.devices[i];
+        }
+    }
+
     $scope.volumeObject = {
         level : 50
     };
@@ -125,9 +133,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                     console.log("Setting volume to:" + $scope.volumeObject.level);
                 }
             }
-            //    if (!jsonObject.hasOwnProperty("method")) {
-            //      return;
-            //    }
             var methodName = jsonObject.method;
             if (jsonObject.id == CONSTANTS.getAllPlaylistItems) {
                 for (var i = 0;i < jsonObject.result.length; i++) {
@@ -260,10 +265,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         };
     }
     $scope.hdhomerunChannelList = function() {
-        var device = $scope.getHdhomerunDevice();
-        var url = "http://"+device.name+":"+device.port+"/lineup.json";
+        var url = "http://"+$scope.hdhomerunDevice.name+":"+$scope.hdhomerunDevice.port+"/lineup.json";
         console.log("hdhomerunChannelList URL: " + url);
-
         $http.get(url).success(function(data) {
             $scope.items = data;
             for (var i = 0; i < $scope.items.length; i++) {
@@ -501,6 +504,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         if (!$scope.playing) {
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
+        if (item.type=="podcast") {
+            console.log("Podcast play " + JSON.stringify(item));
+            kodiSend("Player.Open",{ item : { file : item.url }});
+            return;
+        }
+
         var videoId = "";
 
         if (item.hasOwnProperty("contentDetails")) {
@@ -699,15 +708,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
         return null;
     }
-    $scope.getHdhomerunDevice = function() {
-        for (i = 0; i < $scope.devices.length; i++) {
-            if ($scope.devices[i].type=='hdhomerun') {
-                console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
-                return $scope.devices[i];
-            }
-        }
-        return null;
-    }
     $scope.deviceToggle = function(device) {
         console.log(JSON.stringify(device) + " active: " + device.active);
         if (device.active) {
@@ -766,8 +766,67 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             window.location.reload();
         }
     }
+    $scope.podcastSearch = function(searchTerm) {
+        console.log("Podcast search: " + searchTerm)
+        var url = "https://itunes.apple.com/search?media=podcast&entity=podcast&term="+searchTerm;
+        var podcastFeedUrl = "";
+        $http.get(url).success(function(data) {
+            console.log("Podcast search response: " + JSON.stringify(data));
+            if (data.resultCount != 1) {
+                return;
+            }
+            podcastFeedUrl = data.results[0].feedUrl;
+            console.log("Podcast URL: " + podcastFeedUrl);
+            xmlhttp=new XMLHttpRequest();
+            xmlhttp.open("GET",podcastFeedUrl,false);
+            xmlhttp.send();
+            xmlDoc=xmlhttp.responseXML;
+            var namespace = "http://www.itunes.com/dtds/podcast-1.0.dtd";
+            var channelElement = xmlDoc.getElementsByTagName("channel")[0];
+            var imageUrl = channelElement.getElementsByTagNameNS(namespace ,"image")[0].getAttribute("href");
+            console.log("****** IMAGE URL: " + imageUrl);
+            episodes = [];
+            for (var i = 0;i<channelElement.childNodes.length;i++) {
+                var nodeName = channelElement.childNodes[i].nodeName;
+                console.log("Node name " + i + ": " + nodeName);
+                if (nodeName == "item") {
+                    var itemNode = channelElement.childNodes[i];
+                    var episodeTitle = itemNode.getElementsByTagName("title")[0].childNodes[0].nodeValue;
+                    console.log("EPISODE TITLE: " + episodeTitle);
+                    var enclosureElement = itemNode.getElementsByTagName("enclosure")[0];
+                    dumpXml(enclosureElement);
+                    var episodeUrl = enclosureElement.getAttribute("url");
+                    var episodeDescriptionElement = itemNode.getElementsByTagNameNS(namespace,"summary")[0];
+                    dumpXml(episodeDescriptionElement);
+                    var episodeDescription = episodeDescriptionElement.childNodes[0].nodeValue;
+                  //  var imageUrlElement = itemNode.getElementsByTagNameNS(namespace,"image")[0];
+                  //  dumpXml(imageUrlElement);
+                    var item = {};
+                    item.snippet={}
+                    item.snippet.title = episodeTitle;
+                    item.snippet.thumbnails ={};
+                    item.snippet.thumbnails.default={};
+                   // item.snippet.thumbnails.default.url=imageUrlElement.getAttribute("href");
+                    item.url=episodeUrl;
+                    item.snippet.description=episodeDescription;
+                    item.kodiStatus="notOnQueue";
+                    item.type="podcast";
+                    episodes.push(item);
+                }
+            }
+
+
+            console.log("EPISODES: " + JSON.stringify(episodes));
+            $scope.items = episodes;
+        });
+
+    }
     
 } ]);
+function dumpXml(element) {
+    var xmlString = (new XMLSerializer()).serializeToString(element);
+    console.log("XML: " + xmlString);
+}
 
 function toggleTransparentButtons(b) {
     var buttons = document.querySelectorAll("button");
