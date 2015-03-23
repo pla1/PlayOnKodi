@@ -12,6 +12,12 @@ HTML5 app for Ubuntu Touch. Use this app with your Kodi entertainment system.
 
 **NOTE:** *Some features like the 500px button use keyboard navigation functions and may not work if you are not using the [Confluence](http://kodi.wiki/view/Confluence) theme.*
 
+**Kodi system settings requirement**
+
+Under Settings, Services, Remote control, enable "Allow programs on other systems to control Kodi". This will open port 9090 and allow this app to establish bi-directional communication with Kodi using WebSockets. 
+
+![](http://i.imgur.com/IbGT0Fn.png)
+
 **TODO**
 * Better handle when to clear playlists.
 * Better handle refreshing YouTube token.
@@ -23,5 +29,9 @@ Please report bugs and feature requests on the [issues page](https://github.com/
 * AngularJS - https://angularjs.org/
 * Reconnecting-websocket - https://github.com/joewalnes/reconnecting-websocket/blob/master/reconnecting-websocket.js
 * Moment - http://momentjs.com/
+
+### API services used in this app: 
+* YouTube - For video search
+* Feed Wrangler - For podcast search and episode lists
 
 ### About Kodi http://kodi.tv/about/
