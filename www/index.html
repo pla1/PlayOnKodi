@@ -6,8 +6,6 @@
 <meta name="description" content="Play on Kodi">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 <link rel="stylesheet" href="css/app.css" type="text/css" />
-
-
 <script src="js/moment.js"></script>
 <script src="js/angular.js"></script>
 <script src="js/reconnecting-websocket.js"></script>
@@ -27,7 +25,7 @@
 
   <div ng-show="!showSettings && !showRemoteControl">
     <div class="searchFieldContainer">
-      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && podcastSearch(searchField)" type="text" placeholder="Search YouTube"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
+      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && search(searchField)" type="text" placeholder="Search {{combinedSearch}}"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
       <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
       <button ng-click="mostPopularYouTube()">YouTube Popular</button>
       <button ng-click="hdhomerunChannelList()" ng-show="hdhomerunDevice">HDHomeRun Channels</button>
@@ -39,8 +37,8 @@
       <p>{{googleUserCode}}</p>
       <p><a href="http://www.google.com/device">Google Device Code Link</a></p>
     </div>
-
-<div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
+<!-- Sort snippet for the ng-repeat | orderBy:['type','snippet.title','-snippet.description'] -->
+  <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
       <div class="imageContainer">
         <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
       </div>
@@ -156,6 +154,14 @@
             <option value="none">None</option>
             <option value="strict">Strict</option>
         </select></td>
+      </tr>
+      <tr>
+        <th>Search</th>
+        <td>
+          <input type="radio" ng-model="combinedSearch" value="YouTube"              ng-change="saveSettings()">YouTube
+          <input type="radio" ng-model="combinedSearch" value="Podcasts"             ng-change="saveSettings()">Podcast
+          <input type="radio" ng-model="combinedSearch" value="YouTube and Podcasts" ng-change="saveSettings()">Both
+        </td>
       </tr>
       <th>YouTube Authorization</th>
       <td><button ng-click="deleteYouTubeAuthorization()">Delete</button>

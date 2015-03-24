@@ -10,7 +10,7 @@ HTML5 app for Ubuntu Touch. Use this app with your Kodi entertainment system.
 * Start a 500px slideshow on Kodi and mirror the photos to your mobile device.
 * List HDHomeRun channels on your mobile device and play them on Kodi.
 
-**NOTE:** *Some features like the 500px button use keyboard navigation functions and may not work if you are not using the [Confluence](http://kodi.wiki/view/Confluence) theme.*
+**NOTE:** *Some features like the 500px button use keyboard navigation functions and may not work if you are not using the [Confluence](http://kodi.wiki/view/Confluence) theme. Runs best on devices running Oxide (Chromium).*
 
 **Kodi system settings requirement**
 

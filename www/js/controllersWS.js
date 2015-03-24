@@ -83,6 +83,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.googleDeviceCode=storageGet("googleDeviceCode", "");
     $scope.googleAccessToken=storageGet("googleAccessToken", "");
     $scope.googleRefreshToken=storageGet("googleRefreshToken", "");
+    $scope.combinedSearch=storageGet("combinedSearch", "YouTube and Podcasts");
     console.log("REFRESH TOKEN FROM STORAGE: " +$scope.googleRefreshToken);
     $scope.showSettings = false;
     $scope.maxResults = storageGet("maxResults", 5);
@@ -286,9 +287,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
 
     }
 
-    $scope.searchYouTube = function() {
+    $scope.searchYouTube = function(searchTerm) {
         console.log('Looking up: ' + $scope.searchField + " max results:" + $scope.maxResults);
-        document.getElementById("searchFieldId").blur();
         var url = "https://www.googleapis.com/youtube/v3/search";
         var httpConfig = {
             method : "GET",
@@ -296,7 +296,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 part : "snippet",
                 type : "video",
                 key : CONSTANTS.YouTube_API_KEY,
-                q : $scope.searchField,
+                q : searchTerm,
                 maxResults : $scope.maxResults,
                 safeSearch : $scope.ytSafeSearch,
                 order : $scope.ytOrder
@@ -309,6 +309,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
                 $scope.items[i].kodiStatus = $scope.notOnQueue;
             }
+            document.getElementById("searchFieldId").blur();
         });
     }
     $scope.authYouTube = function() {
@@ -499,15 +500,17 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             kodiSend("Player.Open",{ item : { file : item.url }});
             return;
         }
-
         item.kodiStatus = "addedToQueue";
         console.log("kodiAddToPlaylist " + JSON.stringify(item));
         if (!$scope.playing) {
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
         if (item.type=="podcast") {
-            console.log("Podcast play " + JSON.stringify(item));
-            kodiSend("Player.Open",{ item : { file : item.url }});
+            console.log("Podcast added to playlist " + JSON.stringify(item));
+            kodiSend("Playlist.Add",{ playlistid : 0, item : { file : item.url }});
+            if (!$scope.playing) {
+                kodiSend("Player.Open",{ item : { playlistid : 0 }});
+            }
             return;
         }
 
@@ -639,7 +642,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.kodi500px = function() {
         kodiSend("Input.Home");
         kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
-        setTimeout($scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]),5000);
+        //        setTimeout($scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]),5000);
+        $scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]);
     }
     $scope.kodiBack = function() {
         kodiSend("Input.Back");
@@ -676,6 +680,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         storageSet("transparentButtons", $scope.transparentButtons);
         storageSet("fiveHundredPixFeature", $scope.fiveHundredPixFeature);
         storageSet("fiveHundredPixCategory", $scope.fiveHundredPixCategory);
+        storageSet("combinedSearch", $scope.combinedSearch);
         toggleTransparentButtons("yes" == $scope.transparentButtons);
     }
     $scope.deleteYouTubeAuthorization = function() {
@@ -805,62 +810,19 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                         item.type="podcast";
                         $scope.items.push(item);
                     }
+                    document.getElementById("searchFieldId").blur();
                 });
             }});
     }
 
-    $scope.podcastSearchItunesVersion = function(searchTerm) {
-        console.log("Podcast search: " + searchTerm)
-        var url = "https://itunes.apple.com/search?media=podcast&entity=podcast&term="+searchTerm;
-        var podcastFeedUrl = "";
-        $http.get(url).success(function(data) {
-            console.log("Podcast search response: " + JSON.stringify(data));
-            if (data.resultCount != 1) {
-                return;
-            }
-            podcastFeedUrl = data.results[0].feedUrl;
-            console.log("Podcast URL: " + podcastFeedUrl);
-            xmlhttp=new XMLHttpRequest();
-            xmlhttp.open("GET",podcastFeedUrl,false);
-            xmlhttp.send();
-            xmlDoc=xmlhttp.responseXML;
-            var namespace = "http://www.itunes.com/dtds/podcast-1.0.dtd";
-            var channelElement = xmlDoc.getElementsByTagName("channel")[0];
-            var imageUrl = channelElement.getElementsByTagNameNS(namespace ,"image")[0].getAttribute("href");
-            console.log("****** IMAGE URL: " + imageUrl);
-            episodes = [];
-            for (var i = 0;i<channelElement.childNodes.length;i++) {
-                var nodeName = channelElement.childNodes[i].nodeName;
-                console.log("Node name " + i + ": " + nodeName);
-                if (nodeName == "item") {
-                    var itemNode = channelElement.childNodes[i];
-                    var episodeTitle = itemNode.getElementsByTagName("title")[0].childNodes[0].nodeValue;
-                    console.log("EPISODE TITLE: " + episodeTitle);
-                    var enclosureElement = itemNode.getElementsByTagName("enclosure")[0];
-                    //   dumpXml(enclosureElement);
-                    var episodeUrl = enclosureElement.getAttribute("url");
-                    var episodeDescriptionElement = itemNode.getElementsByTagNameNS(namespace,"summary")[0];
-                    // dumpXml(episodeDescriptionElement);
-                    var episodeDescription = episodeDescriptionElement.childNodes[0].nodeValue;
-                    var item = {};
-                    item.snippet={}
-                    item.snippet.title = episodeTitle;
-                    item.snippet.thumbnails ={};
-                    item.snippet.thumbnails.default={};
-                    item.snippet.thumbnails.default.url=imageUrl;
-                    item.url=episodeUrl;
-                    item.snippet.description=episodeDescription;
-                    item.kodiStatus="notOnQueue";
-                    item.type="podcast";
-                    episodes.push(item);
-                }
-            }
-
-
-            console.log("EPISODES: " + JSON.stringify(episodes));
-            $scope.items = episodes;
-        });
-
+    $scope.search = function(searchTerm) {
+        document.getElementById("searchFieldId").blur();
+        if ($scope.combinedSearch=='YouTube and Podcasts' || $scope.combinedSearch=='Podcasts') {
+            $scope.podcastSearch(searchTerm);
+        }
+        if ($scope.combinedSearch=='YouTube and Podcasts' || $scope.combinedSearch=='YouTube') {
+            $scope.searchYouTube(searchTerm);
+        }
     }
 
 } ]);
