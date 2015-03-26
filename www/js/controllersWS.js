@@ -161,10 +161,13 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             if (methodName == "Player.OnPlay") {
                 $scope.playing = true;
                 var type = jsonObject.params.data.item.type;
-                if (type == "movie") {
-                    $scope.backgroundImageUrl="";
+                $scope.backgroundImageUrl="";
+                if (type != 'picture') {
                     $scope.album="";
                     $scope.artist="";
+                    $scope.title ="";
+                }
+                if (type == "movie") {
                     $scope.title = jsonObject.params.data.item.title;
                 }
                 
@@ -194,10 +197,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                     if (item.hasOwnProperty("fanart")) {
                         console.log("Has fanart.");
                         var type = jsonObject.result.item.type;
-                        $scope.backgroundImageUrl="";
-                        $scope.album="";
-                        $scope.title="";
-                        $scope.artist="";
                         if (type == "song") {
                             $scope.album = jsonObject.result.item.album;
                             $scope.title = jsonObject.result.item.title;
@@ -355,7 +354,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                   console.log(JSON.stringify(data));
                   if (data.hasOwnProperty("access_token")) {
                       storageSet("googleAccessToken", data.access_token);
-                      storageSet("googleRefreshToken", data.refresh_token);
+                      storageSet("googleToken", data.refresh_token);
                       $scope.googleAccessToken = data.access_token;
                       $scope.googleRefreshToken = data.refresh_token;
                       clearInterval(pollGoogleAuthServerInterval);
@@ -431,6 +430,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                         if (errorData.error.errors[0].reason == "authError") {
                             if (!isBlank($scope.googleRefreshToken)) {
                                 $scope.refreshTokenYouTube();
+                                $scope.messageLabel="YouTube authorization token refresh. Try that again.";
+                                $scope.$apply();
                                 //$scope.homePageActivitiesYouTube();
                             }
                         }
@@ -501,7 +502,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             return;
         }
         item.kodiStatus = "addedToQueue";
-        console.log("kodiAddToPlaylist " + JSON.stringify(item));
+        console.log("kodiAddToPlaylist " + JSON.stringify(item) + " Playing? " + $scope.playing);
         if (!$scope.playing) {
             kodiSend("Playlist.Clear",{ playlistid : 0 });
         }
@@ -815,8 +816,11 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             }});
     }
 
-    $scope.search = function(searchTerm) {
-        document.getElementById("searchFieldId").blur();
+    $scope.search = function() {
+        var searchField = document.getElementById("searchFieldId");
+        document.getElementById("searchFieldId");
+        document.getElementById("remoteButtonId").focus();
+        var searchTerm = searchField.value;
         if ($scope.combinedSearch=='YouTube and Podcasts' || $scope.combinedSearch=='Podcasts') {
             $scope.podcastSearch(searchTerm);
         }

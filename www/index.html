@@ -18,14 +18,16 @@
     <span class="title">Play on Kodi</span>
     <button  ng-click="showSettings = !showSettings">{{ showSettings ? 'Hide settings' : 'Settings' }}</button>
     <br>
-    <button ng-click="showRemoteControl = !showRemoteControl">{{ showRemoteControl ? 'Hide remote' : 'Remote' }}</button>
+    <button ng-click="showRemoteControl = !showRemoteControl" id="remoteButtonId">{{ showRemoteControl ? 'Hide remote' : 'Remote' }}</button>
   </div>
   <div class="bottomRightCorner">{{messageLabel}}</div>
   <p>&nbsp;</p>
 
   <div ng-show="!showSettings && !showRemoteControl">
     <div class="searchFieldContainer">
-      <input id="searchFieldId" ng-model="searchField" ng-keyup="$event.keyCode == 13 && search(searchField)" type="text" placeholder="Search {{combinedSearch}}"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
+      <form ng-submit="search()">
+        <input id="searchFieldId" ng-model="searchField" type="text" placeholder="Search {{combinedSearch}}"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
+      </form>
       <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
       <button ng-click="mostPopularYouTube()">YouTube Popular</button>
       <button ng-click="hdhomerunChannelList()" ng-show="hdhomerunDevice">HDHomeRun Channels</button>
