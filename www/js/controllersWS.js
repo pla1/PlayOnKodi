@@ -430,7 +430,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                         if (errorData.error.errors[0].reason == "authError") {
                             if (!isBlank($scope.googleRefreshToken)) {
                                 $scope.refreshTokenYouTube();
-                                $scope.messageLabel="YouTube authorization token refresh. Try that again.";
+                                $scope.messageLabel="YouTube authorization token refreshed. You should be good-to-go.";
                                 $scope.$apply();
                                 //$scope.homePageActivitiesYouTube();
                             }
