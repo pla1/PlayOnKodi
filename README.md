@@ -2,6 +2,7 @@
 HTML5 app for Ubuntu Touch. Use this app with your Kodi entertainment system.
 
 * Search for YouTube videos on your mobile device and play them on your Kodi entertainment system.
+* Search for Podcasts on your mobile device and play them on your Kodi entertainment system.
 * If you authenticate your YouTube account you can list your activity feed and play the videos on Kodi.
 * Music Party button shuffles your music library and plays it on Kodi.
 * Weather button to display weather information on Kodi.
