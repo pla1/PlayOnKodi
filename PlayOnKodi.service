@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<service id="oa-1.PlayOnKodi">
-  <type>oa-1.PlayOnKodi</type>
-  <name>Play on Kodi</name>
-  <provider>google</provider>
-</service>
