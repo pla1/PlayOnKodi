@@ -30,6 +30,8 @@ Please report bugs and feature requests on the [issues page](https://github.com/
 * AngularJS - https://angularjs.org/
 * Reconnecting-websocket - https://github.com/joewalnes/reconnecting-websocket/blob/master/reconnecting-websocket.js
 * Moment - http://momentjs.com/
+* Kodi 500px addon
+* Kodi YouTube addon
 
 ### API services used in this app: 
 * YouTube - For video search - https://developers.google.com/youtube/v3/

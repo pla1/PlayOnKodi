@@ -2,6 +2,7 @@ var pokApp = angular
 .module('pokModule', [])
 .constant("CONSTANTS", {
               getAllPlaylistItems:80,
+              GET_ACTIVE_PLAYERS:1000,
               YouTube_API_KEY:"AIzaSyDPxFL1smrq3bV6BlbPswsvgKnS1G97-4Y",
               YouTube_REDIRECT_URI:"urn:ietf:wg:oauth:2.0:oob",
               YouTube_CLIENT_SECRET:"VTnAl8NEs9cePL9Yupi1VgE0",
@@ -129,6 +130,17 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             var jsonObject = JSON.parse(message.data);
             console.log("WebSocket message received: " + message.data);
             console.log("Has property result: " + jsonObject.hasOwnProperty("result") + JSON.stringify(jsonObject));
+            var messageId = jsonObject.id;
+            if (messageId == CONSTANTS.GET_ACTIVE_PLAYERS) {
+                console.log("Check for active audio player.");
+                for (var i = 0 ;i< jsonObject.result.length;i++) {
+                    if (jsonObject.result[i].type ='audio') {
+                        $scope.playing = true;
+                        console.log("Active audio player.");
+                    }
+                }
+            }
+
             if (jsonObject.hasOwnProperty("result")) {
                 if(jsonObject.result.hasOwnProperty("volume")) {
                     $scope.volumeObject.level = jsonObject.result.volume;
@@ -550,7 +562,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("Playlist.Clear",{ playlistid : 0 });
     }
     $scope.kodiGetActivePlayers = function() {
-        kodiSend("Player.GetActivePlayers");
+        kodiSend("Player.GetActivePlayers",{},CONSTANTS.GET_ACTIVE_PLAYERS);
     }
     
     $scope.kodiPlay = function() {
@@ -596,8 +608,8 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     
     $scope.kodiMusicParty = function() {
         kodiSend("Player.Open",{ item : { partymode : "music" }});
-        setTimeout($scope.kodiHome, 4000);
-        setTimeout($scope.kodiBack, 5000);
+        setTimeout(function() {$scope.kodiMultiSend(["Input.Home","Input.Back"])}, 2000);
+
     }
     $scope.kodiNavigation = function(navigationAction) {
         kodiSend("Input."+navigationAction, {});
@@ -644,8 +656,32 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         kodiSend("Input.Home");
         kodiSend("Addons.ExecuteAddon", { addonid:"plugin.image.500px", params:"?mode=feature&feature="+$scope.fiveHundredPixFeature+"&category="+$scope.fiveHundredPixCategory });
         //        setTimeout($scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]),5000);
-        $scope.kodiMultiSend(["Input.Left","Input.Down","Input.Down","Input.Select"]);
+        if ($scope.playing) {
+            console.log("Playing and about to start slideshow via keystrokes.");
+            setTimeout(function() {$scope.kodiMultiSend(["Input.Left","Input.Back","Input.Left","Input.Up","Input.Up","Input.Up","Input.Up","Input.Up","Input.Select"])},3000);
+        } else {
+            console.log("Not playing and about to start slideshow via keystrokes.");
+            setTimeout(function() {$scope.kodiMultiSend(["Input.Left","Input.Back","Input.Left","Input.Up","Input.Up","Input.Up","Input.Select"])},3000);
+        }
+
+
+        //   setTimeout(function() {$scope.kodiMultiSend(["Input.Down","Input.ContextMenu","Input.Down","Input.Select"])},3000);
+        //  kodiSend("Application.Slideshow");
+        //    $scope.kodiGetPlaylists();
+        //    kodiSend("Player.Open",{ item : { directory : "/home/htplainf/Pictures" }});
+        //   kodiSend("Player.Open",{ item : { playlistid : 2 }});
+        //   kodiSend("Player.Open",{ item : {  }}); # starts party mode music - unexpected
+        //  kodiSend("Player.Open",{ path : {  }}); # returns - "Too many parameters"
+        //   kodiSend("Player.Open", {});
+
     }
+    $scope.test = function() {
+        //   kodiSend("Player.Open",{ item : { playlistid : 2 }});
+        //   kodiSend("Player.GoTo", {playerid: 2, to: "next"});
+        kodiSend("xbmc.executebuiltin('Action(Play)')");
+
+    }
+
     $scope.kodiBack = function() {
         kodiSend("Input.Back");
     }
@@ -667,7 +703,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             id : id,
             params : params
         };
-        console.log("kodiSend: " + JSON.stringify(data) );
+        console.log(new Date() + " kodiSend: " + JSON.stringify(data) );
         webSocketService.socket.send(JSON.stringify(data));
     }
     
