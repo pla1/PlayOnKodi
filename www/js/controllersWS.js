@@ -101,12 +101,6 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.muteButtonText="Mute";
     $scope.playing = false;
     $scope.hdhomerunDevice="";
-    for (i = 0; i < $scope.devices.length; i++) {
-        if ($scope.devices[i].type=='hdhomerun') {
-            console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
-            $scope.hdhomerunDevice = $scope.devices[i];
-        }
-    }
 
     $scope.volumeObject = {
         level : 50
@@ -119,11 +113,18 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         console.log("Devices is blank.");
         $scope.devices = [];
         localStorage.setItem("devices", JSON.stringify($scope.devices));
-        var msg = "No Kodi devices defined. Please add a device and restart this app.";
+        var msg = "No Kodi devices defined. Please add a Kodi device.";
         $scope.messageLabel = msg;
         $scope.settingsMessage = msg;
         $scope.showSettings="yes";
     }
+    for (i = 0; i < $scope.devices.length; i++) {
+        if ($scope.devices[i].type=='hdhomerun') {
+            console.log("getHdhomerunDevice: " + JSON.stringify($scope.devices[i]));
+            $scope.hdhomerunDevice = $scope.devices[i];
+        }
+    }
+
     if ($scope.devices.length > 0) {
         webSocketService.initialize();
         webSocketService.socket.onmessage = function(message) {
