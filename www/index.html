@@ -92,15 +92,15 @@
         <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address" required></td>
       </tr>
       <tr>
-        <th>WebSocket port</th>
-        <td><input type="number" ng-model="devicePort" placeholder="WebSocket port usually 9090" required min="80" max="9999"></td>
-      </tr>
-      <tr>
         <th>Device type</th>
         <td>
         <input type="radio" ng-model="deviceType" value="kodi">Kodi
         <input type="radio" ng-model="deviceType" value="hdhomerun">HDHomeRun
         </td>
+      </tr>
+      <tr>
+        <th>Port</th>
+        <td><input type="number" ng-model="devicePort" placeholder="9090 for Kodi devices" title="9090 for Kodi devices, 80 for HDHomeRun devices" required min="80"></td>
       </tr>
       <tr>
         <th>Description</th>
