@@ -77,7 +77,7 @@ pokApp.directive("loadingIndicator", function() {
 });
 
 pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CONSTANTS', function($scope, $http, webSocketService, CONSTANTS) {
-    //  localStorage.removeItem("devices");
+     // localStorage.removeItem("devices");
     var JSON_ID = 1;
     $scope.deviceType = "kodi";
     //$scope.googleUserCode=storageGet("googleUserCode", "");
