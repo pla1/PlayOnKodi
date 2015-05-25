@@ -23,7 +23,7 @@ pokApp.factory('webSocketService', function($rootScope) {
             console.log('Error: WebSocket is not supported by this browser.');
             return;
         }
-        
+
     });
     Chat.initialize = function() {
         console.log("webSocketService Chat.initialize");
@@ -38,13 +38,13 @@ pokApp.factory('webSocketService', function($rootScope) {
         console.log("Chat initialized " + JSON.stringify(Chat));
     };
     Chat.sendMessage = (function() {
-        
+
     });
     return Chat;
 });
 
 pokApp.config(function($httpProvider) {
-    
+
     $httpProvider.interceptors.push(function($q, $rootScope) {
         return {
             'request' : function(config) {
@@ -57,7 +57,7 @@ pokApp.config(function($httpProvider) {
             }
         };
     });
-    
+
 });
 
 pokApp.directive("loadingIndicator", function() {
@@ -68,7 +68,7 @@ pokApp.directive("loadingIndicator", function() {
             scope.$on("loading-started", function(e) {
                 element.css({ "display" : "" });
             });
-            
+
             scope.$on("loading-complete", function(e) {
                 element.css({ "display" : "none" });
             });
@@ -183,7 +183,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 if (type == "movie") {
                     $scope.title = jsonObject.params.data.item.title;
                 }
-                
+
                 if (type == "song") {
                     var id = jsonObject.params.data.item.id;
                     console.log("Player.OnPlay id: " + id + " type: " + type);
@@ -256,12 +256,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
                 var position = jsonObject.params.data.position;
                 console.log("******** Playlist.OnAdd position: " + position);
             }
-            
+
             $scope.$apply();
         };
-        
-        
-        
+
+
+
         webSocketService.socket.onopen = function() {
             console.log('Info: WebSocket connection opened.');
             $scope.messageLabel = "WebSocket connection opened.";
@@ -318,6 +318,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         $http.get(url, httpConfig).success(function(data) {
             $scope.items = data.items;
             for (var i = 0; i < $scope.items.length; i++) {
+                console.log("Snippet: " + JSON.stringify($scope.items[i].snippet));
                 $scope.items[i].age = moment($scope.items[i].snippet.publishedAt).fromNow();
                 $scope.items[i].kodiStatus = $scope.notOnQueue;
             }
@@ -565,7 +566,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.kodiGetActivePlayers = function() {
         kodiSend("Player.GetActivePlayers",{},CONSTANTS.GET_ACTIVE_PLAYERS);
     }
-    
+
     $scope.kodiPlay = function() {
         kodiSend("Player.Open",{ item : { playlistid : 0 }});
     }
@@ -577,15 +578,15 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             kodiSend("Player.GetItem",{ playerid : i, properties: ["title", "album", "artist", "duration", "thumbnail", "file", "fanart", "streamdetails"]});
         }
     }
-    
+
     $scope.kodiVolume = function() {
         kodiSend("Application.SetVolume",{ volume : parseInt($scope.volumeObject.level) });
     }
-    
+
     $scope.kodiGetVolume = function() {
         kodiSend("Application.GetProperties",{ properties : [ 'volume' ] });
     }
-    
+
     $scope.kodiPlayPause = function(playerId) {
         kodiSend("Player.PlayPause",{ playerid : playerId });
     }
@@ -595,18 +596,18 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
             $scope.kodiPlayPause(i);
         }
     }
-    
+
     $scope.kodiStop = function(playerId) {
         kodiSend("Player.Stop",{ playerid : playerId });
     }
-    
+
     $scope.kodiStopAll = function() {
         console.log("Kodi stop all players");
         for (i = 0; i < 3;i++) {
             $scope.kodiStop(i);
         }
     }
-    
+
     $scope.kodiMusicParty = function() {
         kodiSend("Player.Open",{ item : { partymode : "music" }});
         setTimeout(function() {$scope.kodiMultiSend(["Input.Home","Input.Back"])}, 2000);
@@ -622,20 +623,20 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.kodiPlayNext = function(playerId) {
         kodiSend("Player.Goto",{ playerid : playerId, to : "next" });
     }
-    
+
     $scope.kodiPlayNextAll = function() {
         for (i = 0; i < 3;i++) {
             $scope.kodiPlayNext(i);
         }
     }
-    
+
     $scope.kodiClearPlaylist = function(playListId) {
         kodiSend("Playlist.Clear",{playlistid : playListId});
     }
     $scope.kodiGetPlaylists = function() {
         kodiSend("Playlist.GetPlaylists");
     }
-    
+
     $scope.kodiClearPlaylistAll = function() {
         console.log("Kodi clear all playlists");
         for (i = 0; i < 3;i++) {
@@ -643,7 +644,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
     }
 
-    
+
     $scope.kodiShutdown = function() {
         kodiSend("System.Shutdown");
     }
@@ -692,12 +693,12 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     $scope.kodiMute = function() {
         kodiSend("Application.SetMute", {mute:'toggle'});
     }
-    
+
     function kodiSend(method, params, id) {
         if (typeof id == 'undefined') {
             id = JSON_ID++;
         }
-        
+
         var data = {
             jsonrpc : "2.0",
             method : method,
@@ -707,7 +708,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         console.log(new Date() + " kodiSend: " + JSON.stringify(data) );
         webSocketService.socket.send(JSON.stringify(data));
     }
-    
+
     $scope.saveSettings = function() {
         console.log("saveSettings");
         storageSet("ytOrder", $scope.ytOrder);
@@ -774,7 +775,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         }
         localStorage.setItem("devices", JSON.stringify($scope.devices));
     }
-    
+
     $scope.saveDevice = function(device) {
         console.log("Saving device: " + JSON.stringify(device) + " device quantity: " + $scope.devices.length);
         for (i = 0; i < $scope.devices.length; i++) {
@@ -790,7 +791,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
         $scope.devices.push(device);
         localStorage.setItem("devices", JSON.stringify($scope.devices));
     }
-    
+
     $scope.saveNewDevice = function() {
         var device = {};
         device.id = generateUUID();
