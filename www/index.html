@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html data-ng-app="pokModule" ng-controller="PokController">
 <head>
-<meta charset="utf-8">
-<title>Play on Kodi</title>
-<meta name="description" content="Play on Kodi">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<link rel="stylesheet" href="css/app.css" type="text/css" />
-<script src="js/moment.js"></script>
-<script src="js/angular.js"></script>
-<script src="js/reconnecting-websocket.js"></script>
-<script src="js/controllersWS.js"></script>
+  <meta charset="utf-8">
+  <title>Play on Kodi</title>
+  <meta name="description" content="Play on Kodi">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <link rel="stylesheet" href="css/app.css" type="text/css" />
+  <script src="js/moment.js"></script>
+  <script src="js/angular.js"></script>
+  <script src="js/reconnecting-websocket.js"></script>
+  <script src="js/controllersWS.js"></script>
 </head>
 <body ng-style="backgroundImageUrl != '' && {'background-image':'url('+backgroundImageUrl +')'}">
 
   <div loading-indicator style="position: absolute; top: 50%; left: 50%; margin-right: -50%; transform: translate(-50%, -50%); background-color: red; color: white; display: none; font-size: larger;"></div>
   <div class="header">
-    <span class="title">Play on Kodi</span>
+    <h1 class="title">Play on Kodi</h1>
     <button  ng-click="showSettings = !showSettings">{{ showSettings ? 'Hide settings' : 'Settings' }}</button>
     <br>
     <button ng-click="showRemoteControl = !showRemoteControl" id="remoteButtonId">{{ showRemoteControl ? 'Hide remote' : 'Remote' }}</button>
+    <br>
+    <button ng-click="showYouTube = !showYouTube" id="youTubeButtonId">{{ showYouTube ? 'Hide YouTube' : 'YouTube' }}</button>
+    <br>
+    <button ng-click="hdhomerunChannelList()" ng-show="hdhomerunDevice">HDHomeRun</button>
   </div>
   <div class="bottomRightCorner">{{messageLabel}}</div>
   <p>&nbsp;</p>
 
-  <div ng-show="!showSettings && !showRemoteControl">
+  <div ng-show="showYouTube">
     <div class="searchFieldContainer">
       <form ng-submit="search()">
         <input id="searchFieldId" ng-model="searchField" type="text" placeholder="Search {{combinedSearch}}"  class="searchField"> <span ng-show="items">{{filteredItems.length}} results</span>
       </form>
-      <button ng-click="homePageActivitiesYouTube()">YouTube Activities</button>
-      <button ng-click="mostPopularYouTube()">YouTube Popular</button>
-      <button ng-click="hdhomerunChannelList()" ng-show="hdhomerunDevice">HDHomeRun Channels</button>
-   </div>
+      <button ng-click="homePageActivitiesYouTube()" ng-show="googleAccessToken">YouTube Activities</button>
+      <button ng-click="mostPopularYouTube()" ng-show="googleAccessToken">YouTube Popular</button>
+    </div>
 
     <button ng-click="authYouTube()" id="authorize-button" ng-show="!googleAccessToken">YouTube Authorization</button><br>
     <div id="youtubeResponse" ng-show="googleUserCode">
@@ -39,20 +42,21 @@
       <p>{{googleUserCode}}</p>
       <p><a href="http://www.google.com/device">Google Device Code Link</a></p>
     </div>
-<!-- Sort snippet for the ng-repeat | orderBy:['type','snippet.title','-snippet.description'] -->
-  <div class="listContainer" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
-      <div class="imageContainer">
-        <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
-      </div>
-      <div>
-        <h3 ng-style="item.type">
-         {{item.snippet.title}} <span style='font-size: smaller' ng-show="item.age">- {{item.age}}</span>
-        </h3>
-      </div>
-      <div class="textContainer" ng-class="item.type">{{item.snippet.description}}</div>
-    </div>
+    <!-- Sort snippet for the ng-repeat | orderBy:['type','snippet.title','-snippet.description'] -->
+
   </div>
 
+  <div class="listContainer" ng-show="items" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
+    <div class="imageContainer">
+      <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
+    </div>
+    <div>
+      <h3 ng-style="item.type">
+        {{item.snippet.title}} <span style='font-size: smaller' ng-show="item.age">- {{item.age}}</span>
+      </h3>
+    </div>
+    <div class="textContainer" ng-class="item.type">{{item.snippet.description}}</div>
+  </div>
 
   <div ng-show="showRemoteControl" class="remoteControl">
     <button ng-click="kodiNavigation('Home')">Home</button>
@@ -86,31 +90,31 @@
     <h2>Kodi Settings</h2>
     <div class="settingsMessage">{{settingsMessage}}</div>
     <form name="deviceForm" ng-submit="saveNewDevice()">
-    <table id="deviceForm">
-      <tr>
-        <th>Host name</th>
-        <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address" required></td>
-      </tr>
-      <tr>
-        <th>Device type</th>
-        <td>
-        <input type="radio" ng-model="deviceType" value="kodi">Kodi
-        <input type="radio" ng-model="deviceType" value="hdhomerun">HDHomeRun
-        </td>
-      </tr>
-      <tr>
-        <th>Port</th>
-        <td><input type="number" ng-model="devicePort" placeholder="9090 for Kodi devices" title="9090 for Kodi devices, 80 for HDHomeRun devices" required min="80"><br>
+      <table id="deviceForm">
+        <tr>
+          <th>Host name</th>
+          <td><input type="text" ng-model="deviceName" placeholder="Host name or IP address" required></td>
+        </tr>
+        <tr>
+          <th>Device type</th>
+          <td>
+            <input type="radio" ng-model="deviceType" value="kodi">Kodi
+            <input type="radio" ng-model="deviceType" value="hdhomerun">HDHomeRun
+          </td>
+        </tr>
+        <tr>
+          <th>Port</th>
+          <td><input type="number" ng-model="devicePort" placeholder="9090 for Kodi devices" title="9090 for Kodi devices, 80 for HDHomeRun devices" required min="80"><br>
             Be sure to enable "Allow programs on other systems to control Kodi" on your Kodi device.
-        </td>
+          </td>
 
-      </tr>
-      <tr>
-        <th>Description</th>
-        <td><input type="text" ng-model="deviceDescription" placeholder="Description" required></td>
-      </tr>
-    </table>
-    <button type="submit">Add device</button>
+        </tr>
+        <tr>
+          <th>Description</th>
+          <td><input type="text" ng-model="deviceDescription" placeholder="Description" required></td>
+        </tr>
+      </table>
+      <button type="submit">Add device</button>
     </form>
     <p>{{devices.length}} devices</p>
     <table ng-show="devices">
@@ -144,20 +148,20 @@
       <tr>
         <th>Order</th>
         <td><select ng-model="ytOrder" ng-change="saveSettings()">
-            <option value="date">Date</option>
-            <option value="rating">Rating</option>
-            <option value="relevance">Relevance</option>
-            <option value="title">Title</option>
-            <option value="videoCount">Video count</option>
-            <option value="viewCount">View count</option>
+          <option value="date">Date</option>
+          <option value="rating">Rating</option>
+          <option value="relevance">Relevance</option>
+          <option value="title">Title</option>
+          <option value="videoCount">Video count</option>
+          <option value="viewCount">View count</option>
         </select></td>
       </tr>
       <tr>
         <th>Safe search</th>
         <td><select ng-model="ytSafeSearch" ng-change="saveSettings()">
-            <option value="moderate">Moderate</option>
-            <option value="none">None</option>
-            <option value="strict">Strict</option>
+          <option value="moderate">Moderate</option>
+          <option value="none">None</option>
+          <option value="strict">Strict</option>
         </select></td>
       </tr>
       <tr>
@@ -171,14 +175,14 @@
       <th>YouTube Authorization</th>
       <td><button ng-click="deleteYouTubeAuthorization()">Delete</button>
 
-    </table>
+      </table>
 
-    <div id="userAgent">User agent: {{userAgent}}</div>
-    <p><a href='https://github.com/pla1/PlayOnKodi/blob/master/README.md' target='_blank'>README</a></p>
-    <p><a href='https://github.com/pla1/PlayOnKodi/issues' target='_blank'>Report a problem</a></p>
-    <p><a href='https://github.com/pla1/PlayOnKodi/' target='_blank'>Source code</a></p>
-    <p>&nbsp;</p>
-  </div>
-  <script src="js/app.js"></script>
-</body>
-</html>
+      <div id="userAgent">User agent: {{userAgent}}</div>
+      <p><a href='https://github.com/pla1/PlayOnKodi/blob/master/README.md' target='_blank'>README</a></p>
+      <p><a href='https://github.com/pla1/PlayOnKodi/issues' target='_blank'>Report a problem</a></p>
+      <p><a href='https://github.com/pla1/PlayOnKodi/' target='_blank'>Source code</a></p>
+      <p>&nbsp;</p>
+    </div>
+    <script src="js/app.js"></script>
+  </body>
+  </html>

@@ -1,80 +1,81 @@
 body, h1, h2, h3, p, li, span {
-font-family: Ubuntu;
-color:white;
-text-shadow: 2px 2px 8px black;
+  font-family: Ubuntu;
+  color:white;
+  text-shadow: 2px 2px 8px black;
 }
 html {
-background: radial-gradient(ellipse at center,#2C001E, black);
-height:100%;
+  background: radial-gradient(ellipse at center,#2C001E, black);
+  height:100%;
 }
 body {
-height:98%;
-background-size:cover;
+  height:98%;
+  background-size:cover;
 }
 th, td {
-padding:10px;
-text-align:left;
+  padding:10px;
+  text-align:left;
 }
 .searchField {
-width:70%;
+  width:70%;
 }
 input, button, option {
-font-size:x-large;
+  font-size:x-large;
 }
 .header {
-width:100%;
+  width:100%;
 }
 .title {
-font-size:xx-large;
+  float:right;
+  font-size:xx-large;
 }
 .header button {
-text-alight:right;
-float:right;
-margin-top:10px;
-margin-bottom:10px;
-margin-left:10px;
-clear:both;
+  text-align:right;
+  float:right;
+  margin-top:10px;
+  margin-bottom:10px;
+  margin-left:10px;
+  clear:both;
 }
 .listContainer {
-border: 1px solid #DD4814;
-overflow: auto;
-margin-top:5px;
+  border: 1px solid #DD4814;
+  overflow: auto;
+  margin-top:5px;
 }
 .imageContainer img {
-float: left;
-display:block;
-vertical-align:middle;
+  float: left;
+  display:block;
+  vertical-align:middle;
 }
 
 .textContainer {
-margin-left: 130px;
+  margin-left: 130px;
 }
 .textContainer h3 {
-margin:0px;
-font-size:larger;
-font-weight:bold;
+  margin:0px;
+  font-size:larger;
+  font-weight:bold;
 }
 .remoteControl button {
-margin:10px;
-width:8em;
+  margin:10px;
+  width:8em;
 }
 .bottomRightCorner {
-position: absolute; bottom: 0px; right: 0px;
+  position: absolute; bottom: 0px; right: 0px;
 }
 #userAgent {
-font-size:smaller;
+  font-size:smaller;
 }
 .songHeader {
-font-size:x-large;
+  font-size:x-large;
 }
 .settingsCheckboxes input {
-margin-bottom:20px;
+  margin-bottom:20px;
 }
 .settingsMessage {
-font-size:xx-large;
-background-color:red;
-color:white;
+  font-size:xx-large;
+  background-color:red;
+  color:white;
 }
 .hdhomerun {
-font-size:xx-large;
+  font-size:xx-large;
 }
