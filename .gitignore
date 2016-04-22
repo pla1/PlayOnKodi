@@ -2,3 +2,5 @@ build-*
 *.user.*
 PlayOnKodi.ubuntuhtmlproject.user
 *~
+*.click
+.ubuntu-sdk-deploy
