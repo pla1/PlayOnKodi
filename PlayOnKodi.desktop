@@ -1,8 +1,7 @@
 [Desktop Entry]
 Name=Play on Kodi
-Exec=ubuntu-html5-app-launcher $@ --www=www --inspector
+Exec=webapp-container $@ --www=www --inspector
 Icon=PlayOnKodi.png
 Terminal=false
 Type=Application
 X-Ubuntu-Touch=true
-

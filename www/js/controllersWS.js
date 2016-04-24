@@ -92,6 +92,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
   $scope.ytOrder = storageGet("ytOrder", "date");
   $scope.ytSafeSearch = storageGet("ytSafeSearch", "moderate");
   $scope.pictureSlideshowAsBackground = storageGet("pictureSlideshowAsBackground", "yes");
+  $scope.showSongTitle = storageGet("showSongTitle", "yes");
   $scope.fanartAsBackground = storageGet("fanartAsBackground", "yes");
   $scope.transparentButtons = storageGet("transparentButtons", "yes");
   toggleTransparentButtons("yes" == $scope.transparentButtons);
@@ -721,6 +722,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     storageSet("ytSafeSearch", $scope.ytSafeSearch);
     storageSet("fanartAsBackground", $scope.fanartAsBackground);
     storageSet("pictureSlideshowAsBackground", $scope.pictureSlideshowAsBackground);
+    storageSet("showSongTitle", $scope.showSongTitle);
     storageSet("transparentButtons", $scope.transparentButtons);
     storageSet("fiveHundredPixFeature", $scope.fiveHundredPixFeature);
     storageSet("fiveHundredPixCategory", $scope.fiveHundredPixCategory);

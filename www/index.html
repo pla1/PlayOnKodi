@@ -42,22 +42,20 @@
       <p>{{googleUserCode}}</p>
       <p><a href="http://www.google.com/device">Google Device Code Link</a></p>
     </div>
-    <!-- Sort snippet for the ng-repeat | orderBy:['type','snippet.title','-snippet.description'] -->
 
-  </div>
-
-  <div class="listContainer" ng-show="items" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
-    <div class="imageContainer">
-      <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
+    <div class="listContainer" ng-show="items" ng-repeat="item in filteredItems = (items | filter:notOnQueue)" ng-click="kodiAddToPlaylist(item)">
+      <div class="imageContainer">
+        <img ng-src="{{item.snippet.thumbnails.default.url}}" style="max-width:100px">
+      </div>
+      <div>
+        <h3 ng-style="item.type">
+          {{item.snippet.title}} <span style='font-size: smaller' ng-show="item.age">- {{item.age}}</span>
+        </h3>
+      </div>
+      <div class="textContainer" ng-class="item.type">{{item.snippet.description}}</div>
     </div>
-    <div>
-      <h3 ng-style="item.type">
-        {{item.snippet.title}} <span style='font-size: smaller' ng-show="item.age">- {{item.age}}</span>
-      </h3>
-    </div>
-    <div class="textContainer" ng-class="item.type">{{item.snippet.description}}</div>
   </div>
-
+  
   <div ng-show="showRemoteControl" class="remoteControl">
     <button ng-click="kodiNavigation('Home')">Home</button>
     <button ng-click="kodiNavigation('Back')">Back</button>
@@ -82,8 +80,6 @@
     <p>&nbsp;</p>
     <input type="range" min="0" max="100" ng-model="volumeObject.level" ng-change="kodiVolume()" style="width:90%" id="volumeId">
     <br><label for="volumeId">Volume {{volumeObject.level}}</label>
-    <div class="songHeader" ng-show="title">{{artist}} - {{album}} - {{title}}</div>
-
   </div>
 
   <div ng-show="showSettings">
@@ -136,6 +132,7 @@
       <input type="checkbox" ng-model="transparentButtons"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Transparent buttons<br>
       <input type="checkbox" ng-model="pictureSlideshowAsBackground" ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Picture slideshow as background<br>
       <input type="checkbox" ng-model="fanartAsBackground"           ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Fanart as background<br>
+      <input type="checkbox" ng-model="showSongTitle"                ng-true-value="'yes'" ng-false-value="'no'" ng-change="saveSettings()">Show song title<br>
       <p>500px Feature: <select ng-model="fiveHundredPixFeature" ng-options="item.name as item.name for item in fiveHundredPixFeatures" ng-change="saveSettings()"></select></p>
       <p>500px Category: <select ng-model="fiveHundredPixCategory" ng-options="item.name as item.name for item in fiveHundredPixCategories" ng-change="saveSettings()"></select></p>
     </div>
@@ -158,11 +155,13 @@
       </tr>
       <tr>
         <th>Safe search</th>
-        <td><select ng-model="ytSafeSearch" ng-change="saveSettings()">
-          <option value="moderate">Moderate</option>
-          <option value="none">None</option>
-          <option value="strict">Strict</option>
-        </select></td>
+        <td>
+          <select ng-model="ytSafeSearch" ng-change="saveSettings()">
+            <option value="moderate">Moderate</option>
+            <option value="none">None</option>
+            <option value="strict">Strict</option>
+          </select>
+        </td>
       </tr>
       <tr>
         <th>Search</th>
@@ -172,17 +171,19 @@
           <input type="radio" ng-model="combinedSearch" value="YouTube and Podcasts" ng-change="saveSettings()">Both
         </td>
       </tr>
-      <th>YouTube Authorization</th>
-      <td><button ng-click="deleteYouTubeAuthorization()">Delete</button>
+      <tr>
+        <th>YouTube Authorization</th>
+        <td><button ng-click="deleteYouTubeAuthorization()">Delete</button></td>
+      </tr>
+    </table>
 
-      </table>
-
-      <div id="userAgent">User agent: {{userAgent}}</div>
-      <p><a href='https://github.com/pla1/PlayOnKodi/blob/master/README.md' target='_blank'>README</a></p>
-      <p><a href='https://github.com/pla1/PlayOnKodi/issues' target='_blank'>Report a problem</a></p>
-      <p><a href='https://github.com/pla1/PlayOnKodi/' target='_blank'>Source code</a></p>
-      <p>&nbsp;</p>
-    </div>
-    <script src="js/app.js"></script>
-  </body>
-  </html>
+    <div id="userAgent">User agent: {{userAgent}}</div>
+    <p><a href='https://github.com/pla1/PlayOnKodi/blob/master/README.md' target='_blank'>README</a></p>
+    <p><a href='https://github.com/pla1/PlayOnKodi/issues' target='_blank'>Report a problem</a></p>
+    <p><a href='https://github.com/pla1/PlayOnKodi/' target='_blank'>Source code</a></p>
+    <p>&nbsp;</p>
+  </div>
+  <div class="songTitle" ng-show="title && showSongTitle == 'yes' && !showSettings">{{artist}} - {{album}} - {{title}}</div>
+  <script src="js/app.js"></script>
+</body>
+</html>

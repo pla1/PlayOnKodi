@@ -61,12 +61,15 @@ input, button, option {
 }
 .bottomRightCorner {
   position: absolute; bottom: 0px; right: 0px;
+  font-size:smaller;
 }
 #userAgent {
   font-size:smaller;
 }
-.songHeader {
+.songTitle {
   font-size:x-large;
+  position: absolute;
+  bottom: 5px;
 }
 .settingsCheckboxes input {
   margin-bottom:20px;
