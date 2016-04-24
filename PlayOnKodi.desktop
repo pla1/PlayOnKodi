@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Play on Kodi
-Exec=webapp-container $@ --www=www --inspector
+Exec=ubuntu-html5-app-launcher $@ --www=www --inspector
 Icon=PlayOnKodi.png
 Terminal=false
 Type=Application

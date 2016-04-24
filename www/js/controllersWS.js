@@ -825,7 +825,7 @@ pokApp.controller('PokController', [ '$scope', '$http', 'webSocketService', 'CON
     var httpConfig = {
       method : "GET",
       params : {
-        client_id : CONSTANTS.FeedWranger_CLIENT_ID,
+        client_id : CONSTANTS.FeedWrangler_CLIENT_ID,
         search_term : searchTerm
       }
     }

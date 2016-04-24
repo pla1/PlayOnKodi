@@ -2,9 +2,4 @@
       "name": "Play on Kodi",
       "main": "index.html",
       "user-agent": "%name %osinfo",
-      "window": {
-        "width": 800,
-        "height": 600,
-        "toolbar": true
-      }
     }
