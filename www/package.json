@@ -1,5 +1,5 @@
-    {
-      "name": "Play on Kodi",
-      "main": "index.html",
-      "user-agent": "%name %osinfo",
-    }
+{
+  "name": "Play on Kodi",
+  "main": "index.html",
+  "user-agent": "%name %osinfo"
+}
