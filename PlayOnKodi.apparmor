@@ -1,6 +1,7 @@
 {
     "policy_groups": [
         "networking",
+        "keep-display-on",
         "webview"
     ],
     "policy_version": 1.2

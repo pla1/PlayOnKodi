@@ -1,4 +1,5 @@
 {
+    "architecture": "all",
     "description": "Search for media and play it on your Kodi entertainment system",
     "framework": "ubuntu-sdk-14.10",
     "hooks": {
@@ -10,5 +11,5 @@
     "maintainer": "Patrick L Archibald (PLA) <Patrick.Archibald@gmail.com>",
     "name": "play-on-kodi.pla",
     "title": "Play On Kodi",
-    "version": "1.0.6"
+    "version": "1.0.7"
 }
