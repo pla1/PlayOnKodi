@@ -1,7 +1,7 @@
 {
     "architecture": "all",
     "description": "Search for media and play it on your Kodi entertainment system",
-    "framework": "ubuntu-sdk-14.10",
+    "framework": "ubuntu-sdk-15.04.5",
     "hooks": {
         "app": {
             "apparmor": "PlayOnKodi.apparmor",
@@ -11,5 +11,5 @@
     "maintainer": "Patrick L Archibald (PLA) <Patrick.Archibald@gmail.com>",
     "name": "play-on-kodi.pla",
     "title": "Play On Kodi",
-    "version": "1.0.7"
+    "version": "1.0.8"
 }
